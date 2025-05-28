@@ -184,11 +184,13 @@ async function handleSaveSettings(request, sendResponse) {
   }
 }
 
-async function enhancePrompt(originalPrompt) {
+async function enhancePrompt(originalPrompt, provider = 'openrouter', model = '') {
   try {
     debugLog('Enhancement request received:', { 
       promptLength: originalPrompt?.length, 
-      promptPreview: originalPrompt?.substring(0, 50) + '...' 
+      promptPreview: originalPrompt?.substring(0, 50) + '...',
+      provider: provider,
+      model: model
     });
     
     if (!originalPrompt || !originalPrompt.trim()) {
@@ -197,88 +199,33 @@ async function enhancePrompt(originalPrompt) {
     
     const { apiKey, settings } = await getStoredData();
     debugLog('Retrieved data for enhancement:', { 
-      hasApiKey: !!apiKey, 
+      hasApiKey: !!apiKey,
       apiKeyPreview: apiKey ? apiKey.substring(0, 8) + '...' : 'none',
-      settings 
+      settings,
+      provider,
+      model
     });
     
     if (!apiKey) {
-      throw new Error('OpenRouter API key not configured. Please set your API key in the extension settings.');
+      throw new Error(`${getProviderName(provider)} API key not configured. Please set your API key in the extension settings.`);
     }
     
     const currentSettings = { ...DEFAULT_SETTINGS, ...settings };
     debugLog('Using settings for enhancement:', currentSettings);
     
-    // Replace template variables
-    const enhancedPromptText = PROMPT_TEMPLATE
-      .replace('{{ROLE}}', currentSettings.role || 'AI Assistant')
-      .replace('{{DESCRIPTION}}', currentSettings.description)
-      .replace('{{LENGTH}}', currentSettings.length)
-      .replace('{{FORMAT}}', currentSettings.format)
-      .replace('{{TONE}}', currentSettings.tone)
-      .replace('{{ORIGINAL_PROMPT}}', originalPrompt);
+    // Use the appropriate model for the provider
+    const selectedModel = model || getDefaultModelForProvider(provider);
     
-    debugLog('Making API call to OpenRouter...', {
-      templateLength: enhancedPromptText.length,
-      model: 'anthropic/claude-3-haiku'
-    });
+    // Call the appropriate API based on provider
+    const enhancedPrompt = await callProviderAPI(provider, selectedModel, originalPrompt, currentSettings, apiKey);
     
-    // Call OpenRouter API
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-        'X-Title': 'AI Prompt Enhancer',
-        'HTTP-Referer': 'https://ai-prompt-enhancer.local'
-      },
-      body: JSON.stringify({
-        model: 'anthropic/claude-3-haiku',
-        messages: [{ role: 'user', content: enhancedPromptText }],
-        temperature: 0.7,
-        max_tokens: 1000
-      })
-    });
-
-    debugLog('API response status:', response.status);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      debugLog('API Error:', { status: response.status, error: errorText });
-      
-      if (response.status === 401) {
-        throw new Error('Invalid API key. Please check your OpenRouter API key.');
-      } else if (response.status === 429) {
-        throw new Error('Rate limit exceeded. Please try again later.');
-      } else if (response.status === 402) {
-        throw new Error('Insufficient credits. Please add credits to your OpenRouter account.');
-      } else {
-        throw new Error(`API Error: ${response.status} - ${errorText || 'Unknown error'}`);
-      }
-    }
-
-    const data = await response.json();
-    debugLog('API response received:', { 
-      hasChoices: !!data.choices,
-      choicesLength: data.choices?.length,
-      hasContent: !!data.choices?.[0]?.message?.content
-    });
-    
-    if (!data.choices?.[0]?.message?.content) {
-      debugLog('Invalid API response:', data);
-      throw new Error('Invalid API response format');
-    }
-
-    const enhancedPrompt = data.choices[0].message.content.trim();
-    if (!enhancedPrompt) {
-      throw new Error('Empty response from API');
-    }
-
     // Update stats
     await updateStats();
     debugLog('Prompt enhanced successfully', { 
       enhancedLength: enhancedPrompt.length,
-      enhancedPreview: enhancedPrompt.substring(0, 100) + '...'
+      enhancedPreview: enhancedPrompt.substring(0, 100) + '...',
+      provider,
+      model: selectedModel
     });
 
     return enhancedPrompt;
@@ -286,6 +233,197 @@ async function enhancePrompt(originalPrompt) {
     debugLog('Enhancement error:', error);
     throw error;
   }
+}
+
+// Provider configurations and helper functions
+function getProviderName(provider) {
+  const names = {
+    openrouter: 'OpenRouter',
+    openai: 'OpenAI',
+    anthropic: 'Anthropic',
+    groq: 'Groq',
+    perplexity: 'Perplexity'
+  };
+  return names[provider] || 'OpenRouter';
+}
+
+function getDefaultModelForProvider(provider) {
+  const defaults = {
+    openrouter: 'anthropic/claude-3-haiku',
+    openai: 'gpt-4o-mini',
+    anthropic: 'claude-3-haiku-20240307',
+    groq: 'llama-3.1-8b-instant',
+    perplexity: 'llama-3.1-sonar-small-128k-online'
+  };
+  return defaults[provider] || defaults.openrouter;
+}
+
+async function callProviderAPI(provider, model, originalPrompt, settings, apiKey) {
+  const systemPrompt = buildSystemPrompt(settings, originalPrompt);
+  
+  switch (provider) {
+    case 'openrouter':
+      return await callOpenRouterAPI(model, systemPrompt, apiKey);
+    case 'openai':
+      return await callOpenAIAPI(model, systemPrompt, apiKey);
+    case 'anthropic':
+      return await callAnthropicAPI(model, systemPrompt, apiKey);
+    case 'groq':
+      return await callGroqAPI(model, systemPrompt, apiKey);
+    case 'perplexity':
+      return await callPerplexityAPI(model, systemPrompt, apiKey);
+    default:
+      return await callOpenRouterAPI(model, systemPrompt, apiKey);
+  }
+}
+
+function buildSystemPrompt(settings, originalPrompt) {
+  return PROMPT_TEMPLATE
+    .replace('{{ROLE}}', settings.role || 'AI Assistant')
+    .replace('{{DESCRIPTION}}', settings.description)
+    .replace('{{LENGTH}}', settings.length)
+    .replace('{{FORMAT}}', settings.format)
+    .replace('{{TONE}}', settings.tone)
+    .replace('{{ORIGINAL_PROMPT}}', originalPrompt);
+}
+
+async function callOpenRouterAPI(model, systemPrompt, apiKey) {
+  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+      'X-Title': 'AI Prompt Enhancer',
+      'HTTP-Referer': 'https://ai-prompt-enhancer.local'
+    },
+    body: JSON.stringify({
+      model: model,
+      messages: [{ role: 'user', content: systemPrompt }],
+      temperature: 0.7,
+      max_tokens: 1000
+    })
+  });
+
+  return await handleAPIResponse(response, 'OpenRouter');
+}
+
+async function callOpenAIAPI(model, systemPrompt, apiKey) {
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: model,
+      messages: [{ role: 'user', content: systemPrompt }],
+      temperature: 0.7,
+      max_tokens: 1000
+    })
+  });
+
+  return await handleAPIResponse(response, 'OpenAI');
+}
+
+async function callAnthropicAPI(model, systemPrompt, apiKey) {
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'x-api-key': apiKey,
+      'Content-Type': 'application/json',
+      'anthropic-version': '2023-06-01'
+    },
+    body: JSON.stringify({
+      model: model,
+      max_tokens: 1000,
+      messages: [{ role: 'user', content: systemPrompt }]
+    })
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(`Anthropic API Error: ${response.status} - ${data.error?.message || 'Unknown error'}`);
+  }
+
+  if (!data.content?.[0]?.text) {
+    throw new Error('Invalid response format from Anthropic API');
+  }
+
+  return data.content[0].text.trim();
+}
+
+async function callGroqAPI(model, systemPrompt, apiKey) {
+  const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: model,
+      messages: [{ role: 'user', content: systemPrompt }],
+      temperature: 0.7,
+      max_tokens: 1000
+    })
+  });
+
+  return await handleAPIResponse(response, 'Groq');
+}
+
+async function callPerplexityAPI(model, systemPrompt, apiKey) {
+  const response = await fetch('https://api.perplexity.ai/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: model,
+      messages: [{ role: 'user', content: systemPrompt }],
+      temperature: 0.7,
+      max_tokens: 1000
+    })
+  });
+
+  return await handleAPIResponse(response, 'Perplexity');
+}
+
+async function handleAPIResponse(response, providerName) {
+  debugLog(`${providerName} API response status:`, response.status);
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    debugLog(`${providerName} API Error:`, { status: response.status, error: errorText });
+    
+    if (response.status === 401) {
+      throw new Error(`Invalid API key. Please check your ${providerName} API key.`);
+    } else if (response.status === 429) {
+      throw new Error('Rate limit exceeded. Please try again later.');
+    } else if (response.status === 402) {
+      throw new Error(`Insufficient credits. Please add credits to your ${providerName} account.`);
+    } else {
+      throw new Error(`${providerName} API Error: ${response.status} - ${errorText || 'Unknown error'}`);
+    }
+  }
+
+  const data = await response.json();
+  debugLog(`${providerName} API response received:`, { 
+    hasChoices: !!data.choices,
+    choicesLength: data.choices?.length,
+    hasContent: !!data.choices?.[0]?.message?.content
+  });
+  
+  if (!data.choices?.[0]?.message?.content) {
+    debugLog(`Invalid ${providerName} API response:`, data);
+    throw new Error(`Invalid response format from ${providerName} API`);
+  }
+
+  const enhancedPrompt = data.choices[0].message.content.trim();
+  if (!enhancedPrompt) {
+    throw new Error(`Empty response from ${providerName} API`);
+  }
+
+  return enhancedPrompt;
 }
 
 // Message listener
@@ -303,7 +441,7 @@ browserAPI.runtime.onMessage.addListener((request, sender, sendResponse) => {
         break;
         
       case 'enhancePrompt':
-        enhancePrompt(request.prompt)
+        enhancePrompt(request.prompt, request.provider, request.model)
           .then(enhancedPrompt => {
             debugLog('Enhancement successful, sending response');
             sendResponse({ success: true, enhancedPrompt });

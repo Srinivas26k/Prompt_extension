@@ -11,12 +11,43 @@ debugLog("Sidebar script loaded", { browserAPI: !!browserAPI });
 class PromptEnhancer {
     constructor() {
         this.apiKey = '';
+        this.currentProvider = 'openrouter';
+        this.currentModel = '';
         this.settings = {
             role: '',
             description: 'detailed',
             length: 'medium',
             format: 'structured',
             tone: 'helpful'
+        };
+        this.providerModels = {
+            openrouter: [
+                { id: 'anthropic/claude-3-haiku', name: 'Claude 3 Haiku' },
+                { id: 'anthropic/claude-3-sonnet', name: 'Claude 3 Sonnet' },
+                { id: 'openai/gpt-4o-mini', name: 'GPT-4o Mini' },
+                { id: 'openai/gpt-4o', name: 'GPT-4o' },
+                { id: 'google/gemini-flash-1.5', name: 'Gemini Flash 1.5' }
+            ],
+            openai: [
+                { id: 'gpt-4o-mini', name: 'GPT-4o Mini' },
+                { id: 'gpt-4o', name: 'GPT-4o' },
+                { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo' }
+            ],
+            anthropic: [
+                { id: 'claude-3-haiku-20240307', name: 'Claude 3 Haiku' },
+                { id: 'claude-3-sonnet-20240229', name: 'Claude 3 Sonnet' },
+                { id: 'claude-3-opus-20240229', name: 'Claude 3 Opus' }
+            ],
+            groq: [
+                { id: 'llama-3.1-8b-instant', name: 'Llama 3.1 8B' },
+                { id: 'llama-3.1-70b-versatile', name: 'Llama 3.1 70B' },
+                { id: 'mixtral-8x7b-32768', name: 'Mixtral 8x7B' }
+            ],
+            perplexity: [
+                { id: 'llama-3.1-sonar-large-128k-online', name: 'Sonar Large (Online)' },
+                { id: 'llama-3.1-sonar-small-128k-online', name: 'Sonar Small (Online)' },
+                { id: 'llama-3.1-8b-instruct', name: 'Llama 3.1 8B Instruct' }
+            ]
         };
         this.init();
     }
@@ -25,6 +56,8 @@ class PromptEnhancer {
         await this.loadSettings();
         this.setupEventListeners();
         this.updateUI();
+        this.loadStats();
+        this.initializeProviders();
         this.detectPromptFromPage();
     }
 
@@ -60,6 +93,79 @@ class PromptEnhancer {
         });
     }
 
+    initializeProviders() {
+        this.onProviderChange(); // Initialize with default provider
+    }
+
+    onProviderChange() {
+        const providerSelect = document.getElementById('provider');
+        const modelSelect = document.getElementById('model');
+        
+        if (!providerSelect || !modelSelect) return;
+        
+        this.currentProvider = providerSelect.value;
+        const models = this.providerModels[this.currentProvider] || [];
+        
+        // Clear and populate model dropdown
+        modelSelect.innerHTML = '';
+        models.forEach(model => {
+            const option = document.createElement('option');
+            option.value = model.id;
+            option.textContent = model.name;
+            modelSelect.appendChild(option);
+        });
+        
+        // Set first model as default
+        if (models.length > 0) {
+            this.currentModel = models[0].id;
+            modelSelect.value = this.currentModel;
+        }
+        
+        // Update provider-specific help links visibility
+        this.updateProviderLinks();
+    }
+
+    updateProviderLinks() {
+        const allLinks = document.querySelectorAll('.link-group a');
+        allLinks.forEach(link => link.style.display = 'none');
+        
+        const currentLink = document.getElementById(`link-${this.currentProvider}`);
+        if (currentLink) {
+            currentLink.style.display = 'inline-block';
+        }
+    }
+
+    async loadStats() {
+        try {
+            const result = await this.sendMessage({ action: 'getStats' });
+            if (result.success && result.stats) {
+                this.updateStatsDisplay(result.stats);
+            }
+        } catch (error) {
+            debugLog('Error loading stats:', error);
+        }
+    }
+
+    updateStatsDisplay(stats) {
+        const totalEl = document.getElementById('totalEnhancements');
+        const todayEl = document.getElementById('todayEnhancements');
+        
+        if (totalEl) totalEl.textContent = stats.total || 0;
+        if (todayEl) todayEl.textContent = stats.today || 0;
+    }
+
+    clearPrompts() {
+        const originalPromptEl = document.getElementById('originalPrompt');
+        const enhancedPromptEl = document.getElementById('enhancedPrompt');
+        const copyBtn = document.getElementById('copyBtn');
+        
+        if (originalPromptEl) originalPromptEl.value = '';
+        if (enhancedPromptEl) enhancedPromptEl.value = '';
+        if (copyBtn) copyBtn.style.display = 'none';
+        
+        this.showStatus('Prompts cleared', 'success');
+    }
+
     setupEventListeners() {
         // API Key management
         const saveKeyBtn = document.getElementById('saveKey');
@@ -80,10 +186,10 @@ class PromptEnhancer {
             saveSettingsBtn.addEventListener('click', () => this.saveSettings());
         }
 
-        // Prompt enhancement
-        const enhancePromptBtn = document.getElementById('enhancePrompt');
-        const copyPromptBtn = document.getElementById('copyPrompt');
-        const insertPromptBtn = document.getElementById('insertPrompt');
+        // Prompt enhancement - Fix ID mismatch
+        const enhancePromptBtn = document.getElementById('enhanceBtn');
+        const copyPromptBtn = document.getElementById('copyBtn');
+        const clearBtn = document.getElementById('clearBtn');
         
         if (enhancePromptBtn) {
             enhancePromptBtn.addEventListener('click', () => this.enhancePrompt());
@@ -91,8 +197,21 @@ class PromptEnhancer {
         if (copyPromptBtn) {
             copyPromptBtn.addEventListener('click', () => this.copyPrompt());
         }
-        if (insertPromptBtn) {
-            insertPromptBtn.addEventListener('click', () => this.insertPrompt());
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => this.clearPrompts());
+        }
+
+        // Provider selection
+        const providerSelect = document.getElementById('provider');
+        const modelSelect = document.getElementById('model');
+        
+        if (providerSelect) {
+            providerSelect.addEventListener('change', () => this.onProviderChange());
+        }
+        if (modelSelect) {
+            modelSelect.addEventListener('change', () => {
+                this.currentModel = modelSelect.value;
+            });
         }
 
         // Auto-save settings on change
@@ -101,6 +220,18 @@ class PromptEnhancer {
             if (element) {
                 element.addEventListener('change', () => this.autoSaveSettings());
             }
+        });
+    }
+
+    async sendMessage(message) {
+        return new Promise((resolve, reject) => {
+            browserAPI.runtime.sendMessage(message, (response) => {
+                if (browserAPI.runtime.lastError) {
+                    reject(new Error(browserAPI.runtime.lastError.message));
+                } else {
+                    resolve(response || {});
+                }
+            });
         });
     }
 
@@ -148,14 +279,16 @@ class PromptEnhancer {
 
     async testApiKey(apiKey) {
         try {
-            const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+            const provider = this.currentProvider;
+            const model = this.currentModel || this.getDefaultModel(provider);
+            
+            const config = this.getProviderConfig(provider, apiKey, model);
+            
+            const response = await fetch(config.url, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${apiKey}`
-                },
+                headers: config.headers,
                 body: JSON.stringify({
-                    model: 'anthropic/claude-3-haiku',
+                    ...config.body,
                     messages: [{ role: 'user', content: 'Test' }],
                     max_tokens: 1
                 })
@@ -166,6 +299,61 @@ class PromptEnhancer {
             console.error('API key test error:', error);
             return false;
         }
+    }
+
+    getDefaultModel(provider) {
+        const models = this.providerModels[provider];
+        return models && models.length > 0 ? models[0].id : '';
+    }
+
+    getProviderConfig(provider, apiKey, model) {
+        const configs = {
+            openrouter: {
+                url: 'https://openrouter.ai/api/v1/chat/completions',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`,
+                    'X-Title': 'AI Prompt Enhancer',
+                    'HTTP-Referer': 'https://ai-prompt-enhancer.local'
+                },
+                body: { model: model }
+            },
+            openai: {
+                url: 'https://api.openai.com/v1/chat/completions',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: { model: model }
+            },
+            anthropic: {
+                url: 'https://api.anthropic.com/v1/messages',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': apiKey,
+                    'anthropic-version': '2023-06-01'
+                },
+                body: { model: model }
+            },
+            groq: {
+                url: 'https://api.groq.com/openai/v1/chat/completions',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: { model: model }
+            },
+            perplexity: {
+                url: 'https://api.perplexity.ai/chat/completions',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: { model: model }
+            }
+        };
+        
+        return configs[provider] || configs.openrouter;
     }
 
     async saveSettings() {
@@ -221,7 +409,7 @@ class PromptEnhancer {
 
     async enhancePrompt() {
         const originalPromptEl = document.getElementById('originalPrompt');
-        const enhanceBtn = document.getElementById('enhancePrompt');
+        const enhanceBtn = document.getElementById('enhanceBtn');
         
         if (!originalPromptEl) {
             this.showStatus('Original prompt input not found', 'error');
@@ -236,7 +424,7 @@ class PromptEnhancer {
         }
 
         if (!this.apiKey) {
-            this.showStatus('Please set your OpenRouter API key first', 'error');
+            this.showStatus('Please set your API key first', 'error');
             return;
         }
 
@@ -249,15 +437,26 @@ class PromptEnhancer {
 
             const result = await this.sendMessage({
                 action: 'enhancePrompt',
-                prompt: originalPrompt
+                prompt: originalPrompt,
+                provider: this.currentProvider,
+                model: this.currentModel
             });
 
             if (result.success) {
                 const enhancedPromptEl = document.getElementById('enhancedPrompt');
+                const copyBtn = document.getElementById('copyBtn');
+                
                 if (enhancedPromptEl) {
                     enhancedPromptEl.value = result.enhancedPrompt;
                 }
+                if (copyBtn) {
+                    copyBtn.style.display = 'inline-block';
+                }
+                
                 this.showStatus('Prompt enhanced successfully!', 'success');
+                
+                // Refresh stats after successful enhancement
+                setTimeout(() => this.loadStats(), 500);
             } else {
                 this.showStatus('Error: ' + result.error, 'error');
             }
@@ -271,115 +470,6 @@ class PromptEnhancer {
                 enhanceBtn.innerHTML = 'Enhance Prompt';
             }
         }
-    }
-
-    async callOpenRouter(originalPrompt) {
-        const systemPrompt = this.buildSystemPrompt();
-        
-        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${this.apiKey}`,
-                'HTTP-Referer': 'https://promptenhancer.ai',
-                'X-Title': 'AI Prompt Enhancer'
-            },
-            body: JSON.stringify({
-                model: 'anthropic/claude-3-haiku',
-                messages: [
-                    { role: 'system', content: systemPrompt },
-                    { role: 'user', content: `Please enhance this prompt: "${originalPrompt}"` }
-                ],
-                temperature: 0.7,
-                max_tokens: 1000
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error(`OpenRouter API error: ${response.status}`);
-        }
-
-        const data = await response.json();
-        return data.choices[0].message.content;
-    }
-
-    buildSystemPrompt() {
-        const roleInstruction = this.settings.role ? `Act as a ${this.settings.role}.` : '';
-        
-        const descriptionStyles = {
-            detailed: 'detailed and comprehensive',
-            creative: 'creative and engaging',
-            professional: 'professional and formal',
-            casual: 'casual and conversational',
-            technical: 'technical and precise'
-        };
-
-        const lengthStyles = {
-            short: 'Keep responses concise (1-2 paragraphs)',
-            medium: 'Provide medium-length responses (3-5 paragraphs)',
-            long: 'Give detailed responses (6+ paragraphs)',
-            comprehensive: 'Provide comprehensive analysis with extensive detail'
-        };
-
-        const formatStyles = {
-            structured: 'Structure the response with clear headings and sections',
-            bullets: 'Format the response using bullet points',
-            numbered: 'Use numbered lists to organize information',
-            paragraph: 'Write in paragraph form with smooth flow'
-        };
-
-        const toneStyles = {
-            helpful: 'helpful and informative',
-            analytical: 'analytical and critical',
-            creative: 'creative and innovative',
-            persuasive: 'persuasive and convincing',
-            educational: 'educational and explanatory'
-        };
-
-        return `# ROLE
-You are an expert prompt engineer specializing in creating highly effective, role-based prompts that maximize AI response quality and accuracy.
-
-${roleInstruction}
-
-# ENHANCEMENT SPECIFICATIONS
-
-## Description Level
-Make the prompt ${descriptionStyles[this.settings.description]} with appropriate depth and detail.
-
-## Output Length Requirements  
-${lengthStyles[this.settings.length]}
-
-## Format and Structure
-${formatStyles[this.settings.format]}
-
-## Tone and Style
-Use a ${toneStyles[this.settings.tone]} tone throughout the response.
-
-# ENHANCEMENT GUIDELINES
-
-## Context and Specificity
-- Add comprehensive context and background information
-- Include specific examples or frameworks when they enhance clarity
-- Define any domain-specific terminology or requirements
-- Provide relevant constraints and boundaries
-
-## Instruction Clarity
-- Break down complex tasks into clear, actionable steps
-- Make instructions explicit and unambiguous  
-- Include specific deliverables and success criteria
-- Address potential edge cases or considerations
-
-## Quality Optimization
-- Ensure the enhanced prompt will produce high-quality, relevant responses
-- Structure the prompt for maximum AI comprehension and performance
-- Include formatting and presentation requirements
-- Optimize for the specified parameters above
-
-# TASK
-Transform the user's basic prompt into a sophisticated, comprehensive, role-based prompt that an AI system can follow effectively.
-
-# OUTPUT REQUIREMENTS
-Return only the enhanced prompt with proper formatting and structure. Do not include explanations or meta-commentary.`;
     }
 
     async copyPrompt() {
@@ -401,77 +491,19 @@ Return only the enhanced prompt with proper formatting and structure. Do not inc
         }
     }
 
-    async insertPrompt() {
-        const enhancedPromptEl = document.getElementById('enhancedPrompt');
-        if (!enhancedPromptEl || !enhancedPromptEl.value) {
-            this.showStatus('No enhanced prompt to insert', 'error');
-            return;
-        }
-
-        try {
-            const tabs = await browserAPI.tabs.query({ active: true, currentWindow: true });
-            if (tabs[0]) {
-                await browserAPI.tabs.sendMessage(tabs[0].id, {
-                    action: 'insertPrompt',
-                    prompt: enhancedPromptEl.value
-                });
-                this.showStatus('Prompt inserted successfully!', 'success');
-            }
-        } catch (error) {
-            console.error('Insert error:', error);
-            this.showStatus('Error inserting prompt', 'error');
-        }
-    }
-
-    sendMessage(message) {
-        return new Promise((resolve, reject) => {
-            browserAPI.runtime.sendMessage(message, (response) => {
-                if (browserAPI.runtime.lastError) {
-                    reject(new Error(browserAPI.runtime.lastError.message));
-                } else {
-                    resolve(response || {});
-                }
-            });
-        });
-    }
-
-    showStatus(message, type = 'info') {
-        // Create or update status element
-        let statusEl = document.getElementById('globalStatus');
-        if (!statusEl) {
-            statusEl = document.createElement('div');
-            statusEl.id = 'globalStatus';
-            statusEl.className = 'status-message';
-            const container = document.querySelector('.enhancer-container') || document.body;
-            container.appendChild(statusEl);
-        }
-
-        statusEl.textContent = message;
-        statusEl.className = `status-message ${type}`;
-        
-        // Auto-hide success messages
-        if (type === 'success') {
-            setTimeout(() => {
-                if (statusEl.textContent === message) {
-                    statusEl.textContent = '';
-                    statusEl.className = 'status-message';
-                }
-            }, 3000);
-        }
-    }
-
     updateUI() {
-        // Update role display if available
-        const roleDisplay = document.getElementById('currentRole');
-        if (roleDisplay) {
-            roleDisplay.textContent = this.settings.role || 'No specific role';
-        }
-
         // Update API status
         const apiStatusEl = document.getElementById('apiStatus');
         if (apiStatusEl) {
             apiStatusEl.textContent = this.apiKey ? 'Connected' : 'Not configured';
             apiStatusEl.className = this.apiKey ? 'status connected' : 'status disconnected';
+        }
+
+        // Update provider display
+        const providerSelect = document.getElementById('provider');
+        if (providerSelect && this.currentProvider) {
+            providerSelect.value = this.currentProvider;
+            this.onProviderChange();
         }
     }
 }

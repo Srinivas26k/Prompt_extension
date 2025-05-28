@@ -1,186 +1,230 @@
 # AI Prompt Enhancer Firefox Extension
 
-Transform basic prompts into perfect, role-based prompts using OpenRouter AI.
+Transform your basic prompts into perfect, role-based prompts that maximize AI response quality and accuracy.
 
-## 🚀 Features
+## ✨ Features
 
-- **Smart Prompt Enhancement**: Transform basic prompts into sophisticated, role-based prompts
-- **OpenRouter Integration**: Uses OpenRouter AI API for intelligent prompt transformation
-- **Multiple AI Chat Platform Support**: Works on Claude.ai, ChatGPT, and other AI platforms
-- **Real-time Enhancement**: Enhance prompts directly in text areas with a floating button
-- **Customizable Settings**: Configure role, tone, length, format, and description level
-- **Context Menu Integration**: Right-click selected text to enhance it
-- **Statistics Tracking**: Track daily and total prompt enhancements
+### 🔄 Multi-Provider Support
+- **OpenRouter** - Access to multiple AI models through one API
+- **OpenAI** - GPT-4o, GPT-4o Mini, GPT-3.5 Turbo
+- **Anthropic** - Claude 3 Haiku, Sonnet, and Opus
+- **Groq** - Lightning-fast Llama models
+- **Perplexity** - AI with real-time web access
 
-## 📦 Installation
+### 🎯 Smart Enhancement
+- **Role-based prompting** with customizable personas
+- **Structured formatting** with professional templates
+- **Context enrichment** for better AI understanding
+- **Quality optimization** for superior results
 
-### Manual Installation (Recommended)
+### ⚙️ Flexible Configuration
+- **Multiple description levels**: Minimal, Detailed, Comprehensive
+- **Output length control**: Short, Medium, Long
+- **Format styles**: Conversational, Structured, Bullet Points
+- **Response tones**: Helpful, Professional, Friendly, Concise
 
-1. **Download the Extension**
-   - Use the `ai-prompt-enhancer-v1.0.0.zip` file in this directory
+### 📊 Usage Analytics
+- **Real-time statistics** tracking
+- **Daily and total counts**
+- **Performance insights**
 
-2. **Install in Firefox**
-   - Open Firefox and go to `about:debugging`
-   - Click "This Firefox" on the left sidebar
-   - Click "Load Temporary Add-on..."
-   - Select the `ai-prompt-enhancer-v1.0.0.zip` file
+### 🛠️ User Experience
+- **Manual prompt enhancement** in sidebar
+- **Context menu integration** for selected text
+- **One-click copy to clipboard**
+- **Auto-save settings**
+- **Real-time API key validation**
 
-3. **Configure OpenRouter API Key**
-   - Get your API key from [OpenRouter.ai](https://openrouter.ai)
-   - Click the extension icon in the toolbar
-   - Click "Open Sidebar Panel"
-   - Enter your API key and click "Save API Key"
+## 🚀 Installation
 
-## 🔧 Usage
+### Option 1: Load Unpacked Extension (Development)
+1. Download and extract the extension files
+2. Open Firefox and navigate to `about:debugging`
+3. Click "This Firefox" in the left sidebar
+4. Click "Load Temporary Add-on..."
+5. Select the `manifest.json` file from the extracted folder
+6. The extension will be loaded temporarily
 
-### Method 1: Floating Button
-1. Visit any AI chat platform (Claude.ai, ChatGPT, etc.)
-2. Start typing in a text area
-3. When you have 10+ characters, a floating ✨ button will appear
-4. Click the button to enhance your prompt automatically
+### Option 2: Install from ZIP
+1. Download the `ai-prompt-enhancer-v1.0.0.zip` file
+2. Open Firefox and navigate to `about:addons`
+3. Click the gear icon and select "Install Add-on From File..."
+4. Select the downloaded ZIP file
+5. Click "Add" when prompted
 
-### Method 2: Sidebar Panel
+## 🔧 Setup
+
+### 1. Choose Your AI Provider
 1. Click the extension icon in the toolbar
-2. Click "Open Sidebar Panel"
-3. Paste your prompt in the "Original Prompt" field
-4. Configure settings (role, tone, length, etc.)
-5. Click "Enhance Prompt"
-6. Copy or insert the enhanced prompt
+2. Select your preferred AI provider from the dropdown
+3. Choose the appropriate model for your needs
 
-### Method 3: Context Menu
-1. Select any text on a webpage
+### 2. Configure API Key
+Get your API key from one of these providers:
+
+- **OpenRouter**: [https://openrouter.ai/keys](https://openrouter.ai/keys)
+- **OpenAI**: [https://platform.openai.com/api-keys](https://platform.openai.com/api-keys)
+- **Anthropic**: [https://console.anthropic.com/](https://console.anthropic.com/)
+- **Groq**: [https://console.groq.com/keys](https://console.groq.com/keys)
+- **Perplexity**: [https://www.perplexity.ai/settings/api](https://www.perplexity.ai/settings/api)
+
+### 3. Customize Settings
+Configure enhancement parameters:
+- **Role**: Set a specific persona (optional)
+- **Description Level**: Choose detail depth
+- **Output Length**: Select response size
+- **Format Style**: Pick structure type
+- **Response Tone**: Set communication style
+
+## 📖 Usage
+
+### Manual Enhancement
+1. Open the extension sidebar
+2. Enter your basic prompt in the text area
+3. Click "Enhance Prompt"
+4. Copy the enhanced result
+
+### Context Menu Enhancement
+1. Select text on any webpage
 2. Right-click and choose "Enhance with AI"
-3. The enhanced text will replace the selection
-
-## ⚙️ Settings
-
-Configure these options in the sidebar panel:
-
-- **Role**: Specify what role the AI should take (e.g., "expert copywriter", "technical consultant")
-- **Description Level**: Choose how detailed the response should be
-- **Length**: Control response length (short, medium, long, comprehensive)
-- **Format**: Choose output format (structured, bullets, numbered, paragraph)
-- **Tone**: Set the response tone (helpful, analytical, creative, persuasive, educational)
+3. The enhanced prompt will be processed automatically
 
 ## 🛠️ Development
 
 ### Prerequisites
-- Node.js or Bun
-- Firefox Developer Edition (optional but recommended)
+- [Bun](https://bun.sh/) runtime
+- Firefox Developer Edition (recommended)
 
-### Build Commands
+### Build from Source
 ```bash
+# Clone the repository
+git clone <repository-url>
+cd Prompt_extension
+
 # Install dependencies
 bun install
 
 # Build the extension
 bun run build
 
-# Create distribution zip
-bun run zip
+# Run tests
+bun run test
 
-# Lint the extension
+# Lint the code
 bun run lint
-
-# Development with auto-reload
-bun run dev
 ```
 
 ### Project Structure
 ```
-├── manifest.json       # Extension manifest
-├── background.js       # Background script (API calls, storage)
-├── popup.js/html       # Extension popup
-├── sidebar.js/html     # Main enhancement interface
-├── content.js          # Content script (page interaction)
-├── welcome.html        # Welcome/setup page
-├── icons/              # Extension icons
-└── dist/               # Built extension files
+Prompt_extension/
+├── manifest.json          # Extension manifest
+├── background.js          # Background service worker
+├── sidebar.js            # Sidebar functionality
+├── sidebar.html          # Sidebar UI
+├── sidebar.css           # Sidebar styles
+├── content.js            # Content script
+├── welcome.html          # Welcome page
+├── icons/                # Extension icons
+└── dist/                # Built extension
 ```
-
-## 🔑 API Configuration
-
-1. **Get OpenRouter API Key**
-   - Visit [OpenRouter.ai](https://openrouter.ai)
-   - Sign up and get your API key
-   - The extension uses the `anthropic/claude-3-haiku` model by default
-
-2. **Configure in Extension**
-   - Open the sidebar panel
-   - Enter your API key
-   - Click "Save API Key"
-   - The extension will validate the key automatically
-
-## 📊 Usage Statistics
-
-The extension tracks:
-- Total prompts enhanced
-- Daily enhancement count
-- API connection status
-
-View statistics in the popup or sidebar panel.
 
 ## 🐛 Troubleshooting
 
 ### Common Issues
 
-1. **API Key Not Working**
-   - Ensure you have credits in your OpenRouter account
-   - Check that the API key is correctly entered
-   - Try refreshing the page
+#### "API key not working"
+- **Solution**: Verify the API key is correct and has sufficient credits
+- **Check**: Ensure you're using the right key for the selected provider
+- **Debug**: Use the debug helper: `./debug-helper.sh`
 
-2. **Enhancement Button Not Appearing**
-   - Make sure you have at least 10 characters in the text area
-   - Try clicking in the text area to focus it
-   - Refresh the page and try again
+#### "Extension not loading"
+- **Solution**: Check browser console for errors
+- **Fix**: Reload the extension in `about:debugging`
+- **Verify**: Ensure manifest.json is valid
 
-3. **Extension Not Loading**
-   - Check browser console for errors
-   - Ensure you're using Firefox (Chrome API compatibility limited)
-   - Try reinstalling the extension
+#### "Prompt enhancement fails"
+- **Check**: API key is valid and has credits
+- **Verify**: Internet connection is stable
+- **Try**: Switch to a different AI provider
+- **Debug**: Check background script logs
 
-### Debug Mode
-- Open Firefox Developer Tools (F12)
-- Check Console for error messages
-- Check Extension debugging in `about:debugging`
-- Look for debug messages starting with `[AI Prompt Enhancer Debug]`
+#### "Stats not updating"
+- **Solution**: Stats refresh automatically after successful enhancements
+- **Check**: Browser storage permissions
+- **Reset**: Clear extension data and reconfigure
 
-### New in v1.0.0 - Recent Fixes
-- ✅ **Fixed storage issues**: Now uses `browser.storage.local` for temporary addon compatibility
-- ✅ **Enhanced debugging**: Comprehensive logging for troubleshooting
-- ✅ **Improved manifest**: Updated to use `browser_specific_settings` and Firefox 79+
-- ✅ **Consistent API models**: Uses `anthropic/claude-3-haiku` for reliable responses
-- ✅ **Better error handling**: Detailed error messages for API and storage issues
-- ✅ **CSP compliance**: Removed inline scripts from welcome page
-- ✅ **Additional testing tools**: Run `./test-manual.sh` and `./debug-helper.sh`
+### Debug Tools
 
-### Debug Scripts
+#### Manual Testing
 ```bash
-# Run comprehensive tests
 ./test-manual.sh
+```
 
-# Debug API key and common issues
+#### Debug Helper
+```bash
 ./debug-helper.sh
 ```
 
-## 📝 License
+#### Browser Console
+1. Open Firefox Developer Tools (F12)
+2. Go to Console tab
+3. Look for extension messages prefixed with `[AI Prompt Enhancer Debug]`
 
-This project is open source. Feel free to modify and distribute.
+### Advanced Debugging
+
+#### Background Script Logs
+```javascript
+// In browser console
+browser.runtime.getBackgroundPage().then(bg => {
+    console.log(bg.console);
+});
+```
+
+#### Storage Inspection
+```javascript
+// Check stored data
+browser.storage.local.get().then(console.log);
+```
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Make your changes
-3. Test thoroughly
-4. Submit a pull request
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
 
-## 📞 Support
+## 📄 License
 
-For issues or questions:
-1. Check the troubleshooting section above
-2. Review browser console for errors
-3. Ensure OpenRouter API key is valid and has credits
+This project is licensed under the MIT License.
+
+## 🔄 Changelog
+
+### Version 1.0.0
+- ✅ **Multi-provider support** (OpenRouter, OpenAI, Anthropic, Groq, Perplexity)
+- ✅ **Dynamic model selection** based on provider
+- ✅ **Real-time usage statistics**
+- ✅ **Fixed manual enhancement** button functionality
+- ✅ **Improved prompt templates** with structured formatting
+- ✅ **Enhanced error handling** and debugging
+- ✅ **Cross-browser compatibility**
+- ✅ **Professional UI/UX** improvements
+
+## 💡 Tips
+
+### Best Practices
+- **Start simple**: Begin with basic prompts and let the AI enhance them
+- **Use roles**: Specify expertise areas for better context
+- **Experiment**: Try different providers and models for various tasks
+- **Save settings**: Configure once and reuse your preferences
+
+### Performance
+- **OpenRouter**: Best for model variety and cost-effectiveness
+- **OpenAI**: Excellent for general tasks and coding
+- **Anthropic**: Superior for analysis and reasoning
+- **Groq**: Fastest inference for quick tasks
+- **Perplexity**: Best for research and current information
 
 ---
 
-**Happy prompting! 🚀**
+**Made with ❤️ for better AI interactions**
