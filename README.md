@@ -143,6 +143,25 @@ View statistics in the popup or sidebar panel.
 - Open Firefox Developer Tools (F12)
 - Check Console for error messages
 - Check Extension debugging in `about:debugging`
+- Look for debug messages starting with `[AI Prompt Enhancer Debug]`
+
+### New in v1.0.0 - Recent Fixes
+- ✅ **Fixed storage issues**: Now uses `browser.storage.local` for temporary addon compatibility
+- ✅ **Enhanced debugging**: Comprehensive logging for troubleshooting
+- ✅ **Improved manifest**: Updated to use `browser_specific_settings` and Firefox 79+
+- ✅ **Consistent API models**: Uses `anthropic/claude-3-haiku` for reliable responses
+- ✅ **Better error handling**: Detailed error messages for API and storage issues
+- ✅ **CSP compliance**: Removed inline scripts from welcome page
+- ✅ **Additional testing tools**: Run `./test-manual.sh` and `./debug-helper.sh`
+
+### Debug Scripts
+```bash
+# Run comprehensive tests
+./test-manual.sh
+
+# Debug API key and common issues
+./debug-helper.sh
+```
 
 ## 📝 License
 

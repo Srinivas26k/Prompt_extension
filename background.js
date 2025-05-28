@@ -4,6 +4,16 @@ console.log("AI Prompt Enhancer background script loaded");
 // Cross-browser compatibility
 const browserAPI = typeof browser !== 'undefined' ? browser : chrome;
 
+// Debug logging
+function debugLog(message, data = null) {
+  console.log(`[AI Prompt Enhancer Debug] ${message}`, data || '');
+}
+
+debugLog("Extension background initialized", { 
+  browserAPI: !!browserAPI, 
+  storageAPI: !!browserAPI?.storage?.local 
+});
+
 // Storage keys
 const STORAGE_KEYS = {
   API_KEY: 'openRouterApiKey',
@@ -42,11 +52,14 @@ Return only the enhanced prompt, nothing else.`;
 // Storage operations
 function saveApiKey(apiKey) {
   return new Promise((resolve, reject) => {
+    debugLog("Attempting to save API key", { keyLength: apiKey?.length });
+    
     browserAPI.storage.local.set({ [STORAGE_KEYS.API_KEY]: apiKey }, () => {
       if (browserAPI.runtime.lastError) {
+        debugLog("API key save failed", browserAPI.runtime.lastError);
         reject(new Error(`Failed to save API key: ${browserAPI.runtime.lastError.message}`));
       } else {
-        console.log('API key saved successfully to local storage');
+        debugLog('API key saved successfully to local storage');
         resolve(true);
       }
     });
@@ -55,11 +68,14 @@ function saveApiKey(apiKey) {
 
 function saveSettings(settings) {
   return new Promise((resolve, reject) => {
+    debugLog("Attempting to save settings", settings);
+    
     browserAPI.storage.local.set({ [STORAGE_KEYS.SETTINGS]: settings }, () => {
       if (browserAPI.runtime.lastError) {
+        debugLog("Settings save failed", browserAPI.runtime.lastError);
         reject(new Error(`Failed to save settings: ${browserAPI.runtime.lastError.message}`));
       } else {
-        console.log('Settings saved successfully to local storage');
+        debugLog('Settings saved successfully to local storage');
         resolve(true);
       }
     });
@@ -68,13 +84,17 @@ function saveSettings(settings) {
 
 function getStoredData() {
   return new Promise((resolve, reject) => {
+    debugLog("Attempting to retrieve stored data");
+    
     browserAPI.storage.local.get([STORAGE_KEYS.API_KEY, STORAGE_KEYS.SETTINGS], (result) => {
       if (browserAPI.runtime.lastError) {
+        debugLog("Data retrieval failed", browserAPI.runtime.lastError);
         reject(new Error(`Failed to get stored data: ${browserAPI.runtime.lastError.message}`));
       } else {
-        console.log('Retrieved stored data:', { 
+        debugLog('Retrieved stored data:', { 
           hasApiKey: !!result[STORAGE_KEYS.API_KEY], 
-          hasSettings: !!result[STORAGE_KEYS.SETTINGS] 
+          hasSettings: !!result[STORAGE_KEYS.SETTINGS],
+          apiKeyPreview: result[STORAGE_KEYS.API_KEY] ? result[STORAGE_KEYS.API_KEY].substring(0, 8) + '...' : 'none'
         });
         resolve({
           apiKey: result[STORAGE_KEYS.API_KEY] || '',
@@ -110,13 +130,17 @@ function updateStats() {
 // Message handlers
 async function handleSaveApiKey(request, sendResponse) {
   try {
+    debugLog("Save API key handler called", { hasApiKey: !!request.apiKey });
+    
     if (!request.apiKey) {
       throw new Error('API key cannot be empty');
     }
+    
     await saveApiKey(request.apiKey);
+    debugLog("API key save successful");
     sendResponse({ success: true, message: 'API key saved successfully' });
   } catch (error) {
-    console.error('Save API key error:', error);
+    debugLog('Save API key error:', error);
     sendResponse({ success: false, error: error.message });
   }
 }
@@ -136,21 +160,28 @@ async function handleSaveSettings(request, sendResponse) {
 
 async function enhancePrompt(originalPrompt) {
   try {
-    console.log('Enhancement request received:', { prompt: originalPrompt?.substring(0, 100) + '...' });
+    debugLog('Enhancement request received:', { 
+      promptLength: originalPrompt?.length, 
+      promptPreview: originalPrompt?.substring(0, 50) + '...' 
+    });
     
     if (!originalPrompt || !originalPrompt.trim()) {
       throw new Error('Please enter a prompt to enhance');
     }
     
     const { apiKey, settings } = await getStoredData();
-    console.log('Retrieved data:', { hasApiKey: !!apiKey, settings });
+    debugLog('Retrieved data for enhancement:', { 
+      hasApiKey: !!apiKey, 
+      apiKeyPreview: apiKey ? apiKey.substring(0, 8) + '...' : 'none',
+      settings 
+    });
     
     if (!apiKey) {
       throw new Error('OpenRouter API key not configured. Please set your API key in the extension settings.');
     }
     
     const currentSettings = { ...DEFAULT_SETTINGS, ...settings };
-    console.log('Using settings:', currentSettings);
+    debugLog('Using settings for enhancement:', currentSettings);
     
     // Replace template variables
     const enhancedPromptText = PROMPT_TEMPLATE
@@ -161,7 +192,10 @@ async function enhancePrompt(originalPrompt) {
       .replace('{{TONE}}', currentSettings.tone)
       .replace('{{ORIGINAL_PROMPT}}', originalPrompt);
     
-    console.log('Making API call to OpenRouter...');
+    debugLog('Making API call to OpenRouter...', {
+      templateLength: enhancedPromptText.length,
+      model: 'anthropic/claude-3-haiku'
+    });
     
     // Call OpenRouter API
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -180,11 +214,11 @@ async function enhancePrompt(originalPrompt) {
       })
     });
 
-    console.log('API response status:', response.status);
+    debugLog('API response status:', response.status);
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('API Error:', response.status, errorText);
+      debugLog('API Error:', { status: response.status, error: errorText });
       
       if (response.status === 401) {
         throw new Error('Invalid API key. Please check your OpenRouter API key.');
@@ -198,10 +232,14 @@ async function enhancePrompt(originalPrompt) {
     }
 
     const data = await response.json();
-    console.log('API response received:', { hasChoices: !!data.choices });
+    debugLog('API response received:', { 
+      hasChoices: !!data.choices,
+      choicesLength: data.choices?.length,
+      hasContent: !!data.choices?.[0]?.message?.content
+    });
     
     if (!data.choices?.[0]?.message?.content) {
-      console.error('Invalid API response:', data);
+      debugLog('Invalid API response:', data);
       throw new Error('Invalid API response format');
     }
 
@@ -212,11 +250,14 @@ async function enhancePrompt(originalPrompt) {
 
     // Update stats
     await updateStats();
-    console.log('Prompt enhanced successfully');
+    debugLog('Prompt enhanced successfully', { 
+      enhancedLength: enhancedPrompt.length,
+      enhancedPreview: enhancedPrompt.substring(0, 100) + '...'
+    });
 
     return enhancedPrompt;
   } catch (error) {
-    console.error('Enhancement error:', error);
+    debugLog('Enhancement error:', error);
     throw error;
   }
 }
@@ -224,6 +265,8 @@ async function enhancePrompt(originalPrompt) {
 // Message listener
 browserAPI.runtime.onMessage.addListener((request, sender, sendResponse) => {
   try {
+    debugLog('Message received:', { action: request.action, sender: sender.tab?.url });
+    
     switch (request.action) {
       case 'saveApiKey':
         handleSaveApiKey(request, sendResponse);
@@ -236,10 +279,11 @@ browserAPI.runtime.onMessage.addListener((request, sender, sendResponse) => {
       case 'enhancePrompt':
         enhancePrompt(request.prompt)
           .then(enhancedPrompt => {
+            debugLog('Enhancement successful, sending response');
             sendResponse({ success: true, enhancedPrompt });
           })
           .catch(error => {
-            console.error('Enhancement error:', error);
+            debugLog('Enhancement failed:', error);
             sendResponse({ success: false, error: error.message });
           });
         break;
@@ -247,10 +291,11 @@ browserAPI.runtime.onMessage.addListener((request, sender, sendResponse) => {
       case 'getSettings':
         getStoredData()
           .then(data => {
+            debugLog('Settings retrieved successfully');
             sendResponse({ success: true, settings: data.settings });
           })
           .catch(error => {
-            console.error('Get settings error:', error);
+            debugLog('Get settings error:', error);
             sendResponse({ success: false, error: error.message });
           });
         break;
@@ -258,10 +303,11 @@ browserAPI.runtime.onMessage.addListener((request, sender, sendResponse) => {
       case 'getApiKey':
         getStoredData()
           .then(data => {
+            debugLog('API key retrieved successfully', { hasKey: !!data.apiKey });
             sendResponse({ success: true, apiKey: data.apiKey });
           })
           .catch(error => {
-            console.error('Get API key error:', error);
+            debugLog('Get API key error:', error);
             sendResponse({ success: false, error: error.message });
           });
         break;
@@ -269,15 +315,17 @@ browserAPI.runtime.onMessage.addListener((request, sender, sendResponse) => {
       case 'getStats':
         browserAPI.storage.local.get([STORAGE_KEYS.STATS], (result) => {
           const stats = result[STORAGE_KEYS.STATS] || { total: 0, today: 0 };
+          debugLog('Stats retrieved:', stats);
           sendResponse({ success: true, stats });
         });
         break;
         
       default:
+        debugLog('Unknown action received:', request.action);
         sendResponse({ success: false, error: 'Unknown action' });
     }
   } catch (error) {
-    console.error('Message handler error:', error);
+    debugLog('Message handler error:', error);
     sendResponse({ success: false, error: 'Internal error occurred' });
   }
   return true; // Keep message channel open for async response
@@ -315,3 +363,4 @@ browserAPI.runtime.onInstalled.addListener((details) => {
 });
 
 console.log('AI Prompt Enhancer initialized successfully');
+debugLog("Background script fully loaded and ready");

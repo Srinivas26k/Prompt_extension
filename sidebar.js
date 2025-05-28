@@ -1,6 +1,13 @@
 // Cross-browser compatibility
 const browserAPI = typeof browser !== 'undefined' ? browser : chrome;
 
+// Debug logging
+function debugLog(message, data = null) {
+    console.log(`[Sidebar Debug] ${message}`, data || '');
+}
+
+debugLog("Sidebar script loaded", { browserAPI: !!browserAPI });
+
 class PromptEnhancer {
     constructor() {
         this.apiKey = '';
@@ -148,7 +155,7 @@ class PromptEnhancer {
                     'Authorization': `Bearer ${apiKey}`
                 },
                 body: JSON.stringify({
-                    model: 'microsoft/phi-4-reasoning-plus:free',
+                    model: 'anthropic/claude-3-haiku',
                     messages: [{ role: 'user', content: 'Test' }],
                     max_tokens: 1
                 })
@@ -278,7 +285,7 @@ class PromptEnhancer {
                 'X-Title': 'AI Prompt Enhancer'
             },
             body: JSON.stringify({
-                model: 'microsoft/phi-4-reasoning-plus:free',
+                model: 'anthropic/claude-3-haiku',
                 messages: [
                     { role: 'system', content: systemPrompt },
                     { role: 'user', content: `Please enhance this prompt: "${originalPrompt}"` }

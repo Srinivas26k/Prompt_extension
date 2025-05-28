@@ -4,10 +4,10 @@
   "version": "1.0.0",
   "description": "Transform your prompts into perfect role-based prompts using OpenRouter AI",
   
-  "applications": {
+  "browser_specific_settings": {
     "gecko": {
       "id": "ai-prompt-enhancer@nampallisrinivas26.local",
-      "strict_min_version": "55.0"
+      "strict_min_version": "79.0"
     }
   },
   
@@ -15,6 +15,7 @@
     "activeTab",
     "storage",
     "contextMenus",
+    "tabs",
     "https://openrouter.ai/*",
     "https://*/*"
   ],
