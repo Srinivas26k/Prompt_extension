@@ -1,0 +1,38 @@
+{
+  "name": "ai-prompt-enhancer",
+  "version": "1.0.0",
+  "description": "Firefox extension that transforms basic prompts into perfect role-based prompts using OpenRouter AI",
+  "main": "background.js",
+  "scripts": {
+    "build": "bun run copy-files && bun run generate-icons",
+    "copy-files": "mkdir -p dist && cp -r *.js *.html *.css *.json icons dist/",
+    "generate-icons": "./generate-icons.sh && mkdir -p dist/icons && cp -r icons/*.png dist/icons/",
+    "zip": "cd dist && zip -r ../ai-prompt-enhancer.zip .",
+    "dev": "bunx web-ext run --source-dir=dist",
+    "lint": "bunx web-ext lint --source-dir=dist"
+  },
+  "keywords": [
+    "firefox",
+    "extension",
+    "ai",
+    "prompt",
+    "openrouter",
+    "claude",
+    "chatgpt",
+    "perplexity",
+    "grok"
+  ],
+  "author": "AI Prompt Enhancer Team",
+  "license": "MIT",
+  "devDependencies": {
+    "web-ext": "^8.7.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/ai-prompt-enhancer"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/ai-prompt-enhancer/issues"
+  },
+  "homepage": "https://github.com/your-username/ai-prompt-enhancer#readme"
+}

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Prompt Enhancer</title>
+    <link rel="stylesheet" href="sidebar.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="icons/icon-32.png" alt="AI Prompt Enhancer Logo" class="logo">
+            <h1>AI Prompt Enhancer</h1>
+        </div>
+
+        <div class="api-key-section">
+            <h3>API Key Setup</h3>
+            <div class="form-group">
+                <label for="apiKey">OpenRouter API Key</label>
+                <div class="input-group">
+                    <input type="password" id="apiKey" placeholder="Enter your OpenRouter API key">
+                    <button id="saveKey" class="btn-secondary">Save</button>
+                </div>
+                <div id="keyStatus" class="status"></div>
+            </div>
+            <p class="help-text">Need an API key? <a href="https://openrouter.ai/keys" target="_blank">Get one here</a></p>
+        </div>
+        <div class="settings-section">
+            <h3>Enhancement Settings</h3>
+            <div class="form-group">
+                <label for="role">Role (optional)</label>
+                <input type="text" id="role" placeholder="e.g. Software Engineer, Doctor, Teacher">
+            </div>
+            <div class="form-group">
+                <label for="description">Description Level</label>
+                <select id="description">
+                    <option value="minimal">Minimal</option>
+                    <option value="detailed" selected>Detailed</option>
+                    <option value="comprehensive">Comprehensive</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="length">Output Length</label>
+                <select id="length">
+                    <option value="short">Short</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="long">Long</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="format">Format Style</label>
+                <select id="format">
+                    <option value="conversational">Conversational</option>
+                    <option value="structured" selected>Structured</option>
+                    <option value="bullet-points">Bullet Points</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="tone">Response Tone</label>
+                <select id="tone">
+                    <option value="helpful" selected>Helpful</option>
+                    <option value="professional">Professional</option>
+                    <option value="friendly">Friendly</option>
+                    <option value="concise">Concise</option>
+                </select>
+            </div>
+            <button id="saveSettings" class="btn-secondary">Save Settings</button>
+            <div id="settingsStatus" class="status"></div>
+        </div>
+  
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "96": "icons/icon-96.png"
+  },
+  
+  "web_accessible_resources": [
+    "icons/*.png"
+  ]
+}

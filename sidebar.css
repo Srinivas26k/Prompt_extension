@@ -1,0 +1,17 @@
+/* Sidebar CSS for AI Prompt Enhancer */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+.container {
+  padding: 15px;
+}
+.btn-primary {
+  background-color: #667eea;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
