@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Prompt Enhancer</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 350px;
+      min-height: 400px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #333;
+    }
+
+    .popup-container {
+      padding: 20px;
+      background: white;
+      min-height: 400px;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .logo {
+      width: 24px;
+      height: 24px;
+      margin-right: 8px;
+    }
+
+    .header h1 {
+      font-size: 1.2rem;
+      color: #333;
+      font-weight: 600;
+    }
+
+    .quick-actions {
+      margin-bottom: 20px;
+    }
+
+    .quick-actions h3 {
+      font-size: 1rem;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    .action-btn {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 10px;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+
+    .action-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .action-btn.secondary {
+      background: #6c757d;
+    }
+
+    .action-btn.secondary:hover {
+      background: #5a6268;
+    }
+
+    .status-section {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+
+    .status-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .status-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .status-label {
+      color: #666;
+    }
+
+    .status-value {
+      font-weight: 600;
+    }
+
+    .status-value.connected {
+      color: #28a745;
+    }
+
+    .status-value.disconnected {
+      color: #dc3545;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 11px;
+      color: #666;
+      margin-top: 15px;
+    }
+
+    .footer a {
+      color: #667eea;
+      text-decoration: none;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="popup-container">
+    <div class="header">
+      <img src="icons/icon-32.png" alt="Logo" class="logo">
+      <h1>AI Prompt Enhancer</h1>
+    </div>
+
+    <div class="status-section">
+      <div class="status-item">
+        <span class="status-label">API Status:</span>
+        <span class="status-value" id="apiStatus">Checking...</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Enhancements Today:</span>
+        <span class="status-value" id="todayCount">0</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Total Enhancements:</span>
+        <span class="status-value" id="totalCount">0</span>
+      </div>
+    </div>
+
+    <div class="quick-actions">
+      <h3>Quick Actions</h3>
+      <button class="action-btn" id="openSidebar">Open Sidebar Panel</button>
+      <button class="action-btn secondary" id="openSettings">Settings</button>
+    </div>
+
+    <div class="footer">
+      <p>Transform prompts with AI • <a href="#" id="helpLink">Help</a></p>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

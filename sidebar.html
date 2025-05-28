@@ -14,7 +14,7 @@
         </div>
 
         <div class="api-key-section">
-            <h3>API Key Setup</h3>
+            <h3>🔑 API Key Setup</h3>
             <div class="form-group">
                 <label for="apiKey">OpenRouter API Key</label>
                 <div class="input-group">
@@ -25,8 +25,9 @@
             </div>
             <p class="help-text">Need an API key? <a href="https://openrouter.ai/keys" target="_blank">Get one here</a></p>
         </div>
+
         <div class="settings-section">
-            <h3>Enhancement Settings</h3>
+            <h3>⚙️ Enhancement Settings</h3>
             <div class="form-group">
                 <label for="role">Role (optional)</label>
                 <input type="text" id="role" placeholder="e.g. Software Engineer, Doctor, Teacher">
@@ -67,15 +68,45 @@
             <button id="saveSettings" class="btn-secondary">Save Settings</button>
             <div id="settingsStatus" class="status"></div>
         </div>
-  
-  "icons": {
-    "16": "icons/icon-16.png",
-    "32": "icons/icon-32.png",
-    "48": "icons/icon-48.png",
-    "96": "icons/icon-96.png"
-  },
-  
-  "web_accessible_resources": [
-    "icons/*.png"
-  ]
-}
+
+        <div class="enhancement-section">
+            <h3>✨ Manual Enhancement</h3>
+            <div class="form-group">
+                <label for="originalPrompt">Original Prompt</label>
+                <textarea id="originalPrompt" placeholder="Enter your prompt here to enhance it manually..."></textarea>
+            </div>
+            <button id="enhanceBtn" class="btn-enhance">Enhance Prompt</button>
+            <div id="enhanceStatus" class="status"></div>
+            <div class="form-group">
+                <label for="enhancedPrompt">Enhanced Prompt</label>
+                <textarea id="enhancedPrompt" readonly placeholder="Enhanced prompt will appear here..."></textarea>
+            </div>
+            <div class="button-group">
+                <button id="copyBtn" class="btn-secondary" style="display: none;">Copy to Clipboard</button>
+                <button id="clearBtn" class="btn-secondary">Clear</button>
+            </div>
+        </div>
+
+        <div class="stats-section">
+            <h3>📊 Usage Stats</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number" id="totalEnhancements">0</div>
+                    <div class="stat-label">Total Enhancements</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="todayEnhancements">0</div>
+                    <div class="stat-label">Today</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Transform your prompts into perfect role-based prompts</p>
+            <div class="version">Version 1.0.0</div>
+        </div>
+    </div>
+
+    <script src="sidebar.js"></script>
+</body>
+</html>

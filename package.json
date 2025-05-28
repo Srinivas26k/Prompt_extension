@@ -4,12 +4,16 @@
   "description": "Firefox extension that transforms basic prompts into perfect role-based prompts using OpenRouter AI",
   "main": "background.js",
   "scripts": {
-    "build": "bun run copy-files && bun run generate-icons",
-    "copy-files": "mkdir -p dist && cp -r *.js *.html *.css *.json icons dist/",
-    "generate-icons": "./generate-icons.sh && mkdir -p dist/icons && cp -r icons/*.png dist/icons/",
-    "zip": "cd dist && zip -r ../ai-prompt-enhancer.zip .",
-    "dev": "bunx web-ext run --source-dir=dist",
-    "lint": "bunx web-ext lint --source-dir=dist"
+    "clean": "rm -rf dist && mkdir -p dist/icons",
+    "copy-files": "cp -r *.js *.html *.css *.json icons dist/ 2>/dev/null || true",
+    "generate-icons": "./generate-icons.sh",
+    "build": "bun run clean && bun run generate-icons && bun run copy-files",
+    "zip": "cd dist && zip -r ../ai-prompt-enhancer-v1.0.0.zip .",
+    "dev": "bunx web-ext run --source-dir=dist --browser-console",
+    "lint": "bunx web-ext lint --source-dir=dist",
+    "start": "bun run build && bun run dev",
+    "package": "bun run build && bun run zip",
+    "test": "echo 'No tests specified' && exit 0"
   },
   "keywords": [
     "firefox",
@@ -20,9 +24,12 @@
     "claude",
     "chatgpt",
     "perplexity",
-    "grok"
+    "grok",
+    "prompt-engineering"
   ],
-  "author": "AI Prompt Enhancer Team",
+  "authors": [
+    "AI Prompt Enhancer Team"
+  ],
   "license": "MIT",
   "devDependencies": {
     "web-ext": "^8.7.1"
@@ -34,5 +41,11 @@
   "bugs": {
     "url": "https://github.com/your-username/ai-prompt-enhancer/issues"
   },
-  "homepage": "https://github.com/your-username/ai-prompt-enhancer#readme"
+  "homepage": "https://github.com/your-username/ai-prompt-enhancer#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "browserslist": [
+    "last 2 Firefox versions"
+  ]
 }
