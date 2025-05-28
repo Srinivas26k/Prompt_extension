@@ -3,11 +3,20 @@
   "name": "AI Prompt Enhancer",
   "version": "1.0.0",
   "description": "Transform your prompts into perfect role-based prompts using OpenRouter AI",
+  
+  "applications": {
+    "gecko": {
+      "id": "ai-prompt-enhancer@nampallisrinivas26.local",
+      "strict_min_version": "55.0"
+    }
+  },
+  
   "permissions": [
     "activeTab",
     "storage",
     "contextMenus",
-    "https://openrouter.ai/*"
+    "https://openrouter.ai/*",
+    "https://*/*"
   ],
   "background": {
     "scripts": ["background.js"],
@@ -18,13 +27,20 @@
       "matches": [
         "https://claude.ai/*",
         "https://chat.openai.com/*",
+        "https://chatgpt.com/*",
         "https://www.perplexity.ai/*",
         "https://grok.x.com/*",
-        "https://gemini.google.com/*"
+        "https://gemini.google.com/*",
+        "https://bard.google.com/*",
+        "https://you.com/*",
+        "https://poe.com/*",
+        "https://character.ai/*",
+        "https://*/*"
       ],
       "js": ["content.js"],
       "css": ["content.css"],
-      "run_at": "document_end"
+      "run_at": "document_end",
+      "all_frames": true
     }
   ],
   "browser_action": {

@@ -1,6 +1,9 @@
 // Popup script for AI Prompt Enhancer
 console.log("AI Prompt Enhancer popup script loaded");
 
+// Cross-browser compatibility
+const browserAPI = typeof browser !== 'undefined' ? browser : chrome;
+
 class PopupManager {
   constructor() {
     this.elements = {};
@@ -43,7 +46,7 @@ class PopupManager {
     try {
       // Check API key status
       const apiKeyResult = await this.sendMessage({ action: 'getApiKey' });
-      if (apiKeyResult.apiKey && apiKeyResult.apiKey.length > 0) {
+      if (apiKeyResult.success && apiKeyResult.apiKey && apiKeyResult.apiKey.length > 0) {
         this.elements.apiStatus.textContent = 'Connected';
         this.elements.apiStatus.className = 'status-value connected';
       } else {
@@ -52,9 +55,14 @@ class PopupManager {
       }
 
       // Load stats
-      const stats = await this.getStats();
-      this.elements.totalCount.textContent = stats.total || 0;
-      this.elements.todayCount.textContent = stats.today || 0;
+      const statsResult = await this.sendMessage({ action: 'getStats' });
+      if (statsResult.success && statsResult.stats) {
+        this.elements.totalCount.textContent = statsResult.stats.total || 0;
+        this.elements.todayCount.textContent = statsResult.stats.today || 0;
+      } else {
+        this.elements.totalCount.textContent = '0';
+        this.elements.todayCount.textContent = '0';
+      }
 
     } catch (error) {
       console.error('Error loading status:', error);
@@ -63,33 +71,44 @@ class PopupManager {
     }
   }
 
-  openSidebar() {
-    chrome.sidebarAction.toggle();
-    window.close();
+  async openSidebar() {
+    try {
+      // For Firefox, we need to open the sidebar HTML in a new tab since sidebar action isn't well supported
+      await browserAPI.tabs.create({
+        url: browserAPI.runtime.getURL('sidebar.html')
+      });
+      window.close();
+    } catch (error) {
+      console.error('Error opening sidebar:', error);
+      // Fallback: try to inject sidebar into current tab
+      try {
+        const tabs = await browserAPI.tabs.query({ active: true, currentWindow: true });
+        if (tabs[0]) {
+          await browserAPI.tabs.sendMessage(tabs[0].id, {
+            action: 'openSidebar'
+          });
+          window.close();
+        }
+      } catch (fallbackError) {
+        console.error('Fallback error:', fallbackError);
+      }
+    }
   }
 
   openHelp() {
-    chrome.tabs.create({
-      url: chrome.runtime.getURL('welcome.html')
+    browserAPI.tabs.create({
+      url: browserAPI.runtime.getURL('welcome.html')
     });
     window.close();
-  }
-
-  async getStats() {
-    return new Promise((resolve) => {
-      chrome.storage.local.get(['stats'], (result) => {
-        resolve(result.stats || {});
-      });
-    });
   }
 
   sendMessage(message) {
     return new Promise((resolve, reject) => {
-      chrome.runtime.sendMessage(message, (response) => {
-        if (chrome.runtime.lastError) {
-          reject(new Error(chrome.runtime.lastError.message));
+      browserAPI.runtime.sendMessage(message, (response) => {
+        if (browserAPI.runtime.lastError) {
+          reject(new Error(browserAPI.runtime.lastError.message));
         } else {
-          resolve(response);
+          resolve(response || {});
         }
       });
     });

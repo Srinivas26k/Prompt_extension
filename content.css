@@ -1,8 +1,171 @@
-/* Content CSS for AI Prompt Enhancer */
-.ai-prompt-enhancer-button {
-  background-color: #667eea;
+/* AI Prompt Enhancer Content Styles */
+
+.prompt-enhancer-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.prompt-enhancer-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+}
+
+.prompt-enhancer-btn:active {
+  transform: scale(0.95);
+}
+
+.enhancer-icon {
+  font-size: 18px;
   color: white;
-  padding: 5px 10px;
-  border-radius: 4px;
-  font-weight: bold;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  animation: pulse 2s infinite;
+}
+
+.enhancer-icon.loading {
+  animation: spin 1s linear infinite;
+}
+
+.enhancer-icon.success {
+  animation: bounce 0.6s ease-in-out;
+}
+
+.enhancer-icon.error {
+  animation: shake 0.6s ease-in-out;
+}
+
+.enhancer-tooltip {
+  position: absolute;
+  bottom: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+  z-index: 10001;
+}
+
+.enhancer-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: rgba(0, 0, 0, 0.8);
+}
+
+.prompt-enhancer-btn:hover .enhancer-tooltip {
+  opacity: 1;
+  visibility: visible;
+  bottom: 45px;
+}
+
+.prompt-enhancer-btn.loading {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.prompt-enhancer-btn.success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.prompt-enhancer-btn.error {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+/* Textarea enhancement indicator */
+textarea:focus[data-prompt-enhancer-attached="true"],
+[contenteditable="true"]:focus[data-prompt-enhancer-attached="true"] {
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+  border-color: #667eea !important;
+}
+
+/* Animations */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes bounce {
+  0%, 20%, 60%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  80% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-2px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(2px);
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .enhancer-tooltip {
+    background: rgba(255, 255, 255, 0.9);
+    color: #1a1a1a;
+  }
+  
+  .enhancer-tooltip::after {
+    border-top-color: rgba(255, 255, 255, 0.9);
+  }
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .prompt-enhancer-btn {
+    width: 45px;
+    height: 45px;
+  }
+  
+  .enhancer-icon {
+    font-size: 20px;
+  }
+  
+  .enhancer-tooltip {
+    font-size: 11px;
+    padding: 6px 10px;
+  }
 }
