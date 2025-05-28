@@ -336,21 +336,50 @@ class PromptEnhancer {
             educational: 'educational and explanatory'
         };
 
-        return `You are an expert prompt engineer. Your task is to transform user prompts into perfect, role-based prompts that will get the best results from AI systems.
+        return `# ROLE
+You are an expert prompt engineer specializing in creating highly effective, role-based prompts that maximize AI response quality and accuracy.
 
 ${roleInstruction}
 
-Enhancement Guidelines:
-- Make the prompt ${descriptionStyles[this.settings.description]}
-- ${lengthStyles[this.settings.length]}
-- ${formatStyles[this.settings.format]}
-- Use a ${toneStyles[this.settings.tone]} tone
-- Add context and specificity to make the prompt more effective
-- Include relevant examples or frameworks when appropriate
-- Make the instructions clear and actionable
-- Ensure the enhanced prompt will produce high-quality, relevant responses
+# ENHANCEMENT SPECIFICATIONS
 
-Transform the user's basic prompt into a sophisticated, role-based prompt that an AI system can follow effectively. Return only the enhanced prompt, nothing else.`;
+## Description Level
+Make the prompt ${descriptionStyles[this.settings.description]} with appropriate depth and detail.
+
+## Output Length Requirements  
+${lengthStyles[this.settings.length]}
+
+## Format and Structure
+${formatStyles[this.settings.format]}
+
+## Tone and Style
+Use a ${toneStyles[this.settings.tone]} tone throughout the response.
+
+# ENHANCEMENT GUIDELINES
+
+## Context and Specificity
+- Add comprehensive context and background information
+- Include specific examples or frameworks when they enhance clarity
+- Define any domain-specific terminology or requirements
+- Provide relevant constraints and boundaries
+
+## Instruction Clarity
+- Break down complex tasks into clear, actionable steps
+- Make instructions explicit and unambiguous  
+- Include specific deliverables and success criteria
+- Address potential edge cases or considerations
+
+## Quality Optimization
+- Ensure the enhanced prompt will produce high-quality, relevant responses
+- Structure the prompt for maximum AI comprehension and performance
+- Include formatting and presentation requirements
+- Optimize for the specified parameters above
+
+# TASK
+Transform the user's basic prompt into a sophisticated, comprehensive, role-based prompt that an AI system can follow effectively.
+
+# OUTPUT REQUIREMENTS
+Return only the enhanced prompt with proper formatting and structure. Do not include explanations or meta-commentary.`;
     }
 
     async copyPrompt() {

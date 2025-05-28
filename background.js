@@ -30,24 +30,50 @@ const DEFAULT_SETTINGS = {
   tone: 'helpful'
 };
 
-// Enhanced prompt template
-const PROMPT_TEMPLATE = `You are an expert prompt engineer. Transform the following basic prompt into a perfect, role-based prompt that will generate better AI responses.
-ENHANCEMENT REQUIREMENTS:
-- Role: {{ROLE}}
-- Description Level: {{DESCRIPTION}}
-- Output Length: {{LENGTH}}
-- Format Style: {{FORMAT}}
-- Response Tone: {{TONE}}
-ORIGINAL PROMPT:
+// Enhanced prompt template - structured and well-formatted
+const PROMPT_TEMPLATE = `# ROLE
+You are an expert prompt engineer specializing in creating highly effective, role-based prompts that maximize AI response quality and accuracy.
+
+# GOAL
+Transform the provided basic prompt into a comprehensive, structured prompt that follows best practices for AI interaction. The enhanced prompt should be clear, detailed, and designed to produce superior results compared to the original.
+
+# ENHANCEMENT PARAMETERS
+- **Target Role**: {{ROLE}}
+- **Description Level**: {{DESCRIPTION}}
+- **Output Length**: {{LENGTH}}
+- **Format Style**: {{FORMAT}}
+- **Response Tone**: {{TONE}}
+
+# ORIGINAL PROMPT TO ENHANCE
 {{ORIGINAL_PROMPT}}
-ENHANCED PROMPT:
-Create a comprehensive, role-based prompt that:
-1. Establishes clear context and role
-2. Provides specific instructions
-3. Defines the desired output format
-4. Sets appropriate tone and style
-5. Includes relevant constraints or requirements
-Return only the enhanced prompt, nothing else.`;
+
+# TASK REQUIREMENTS
+Create an enhanced prompt that incorporates the following elements:
+
+## 1. Clear Role Definition
+Establish a specific role or persona for the AI that aligns with the task requirements. This should be detailed enough to provide proper context and expertise framing.
+
+## 2. Comprehensive Context
+Provide all necessary background information, constraints, and relevant details that would help the AI understand the full scope of the request.
+
+## 3. Specific Instructions
+Break down the task into clear, actionable steps or requirements. Be explicit about what should be included and what should be avoided.
+
+## 4. Output Format Specification
+Define exactly how the response should be structured, formatted, and presented. Include any specific formatting requirements, sections, or organizational patterns.
+
+## 5. Quality Guidelines
+Specify the desired tone, style, complexity level, and any other qualitative aspects that will ensure the output meets expectations.
+
+# RETURN FORMAT
+Provide only the enhanced prompt as your response. Do not include explanations, meta-commentary, or additional text. The enhanced prompt should be ready to use immediately and follow the formatting style specified in the parameters above.
+
+# IMPORTANT GUIDELINES
+- Make the enhanced prompt significantly more detailed and specific than the original
+- Ensure the prompt is self-contained and doesn't require additional context
+- Structure the enhanced prompt with clear sections and formatting for readability
+- Include specific examples or constraints when they would improve clarity
+- Optimize for the specified tone, length, and format requirements`;
 
 // Storage operations
 function saveApiKey(apiKey) {
