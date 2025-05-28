@@ -259,26 +259,10 @@
 
         <div class="cta-buttons">
             <a href="https://openrouter.ai" target="_blank" class="btn btn-primary">Get OpenRouter API Key</a>
-            <button onclick="openSidebar()" class="btn btn-secondary">Open Sidebar</button>
+            <button class="btn btn-secondary">Open Sidebar</button>
         </div>
     </div>
 
-    <script>
-        function openSidebar() {
-            try {
-                browser.sidebarAction.open();
-                window.close();
-            } catch (error) {
-                alert('Please click the AI Prompt Enhancer icon in your Firefox sidebar to get started!');
-            }
-        }
-
-        // Auto-redirect to a supported site after a few seconds
-        setTimeout(() => {
-            if (confirm('Would you like to visit Claude.ai to test the extension?')) {
-                window.location.href = 'https://claude.ai';
-            }
-        }, 10000);
-    </script>
+    <script src="welcome.js"></script>
 </body>
 </html>
