@@ -1,73 +1,44 @@
-# ========================
-# AI PROMPT ENHANCER - PRODUCTION .GITIGNORE
-# ========================
+# AI Prompt Enhancer - Production .gitignore
 
-# Dependencies & Package Managers
+# Dependencies
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-package-lock.json
+pnpm-debug.log*
+lerna-debug.log*
 bun.lock
-.pnpm-debug.log*
 
-# Build outputs and packages
-dist/
-build/
-.next/
-out/
-*.zip
-*.tar.gz
-*.tgz
-
-# Environment variables & Configuration
+# Environment files
 .env
-.env.*
-!.env.example
-config.local.*
+.env.local
+.env.development
+.env.test
+.env.production.local
+.env.development.local
 
-# Python Backend Files
-streamlit_backend/venv/
-streamlit_backend/__pycache__/
-streamlit_backend/*.pyc
-streamlit_backend/.streamlit/
-**/__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-pip-log.txt
-pip-delete-this-directory.txt
+# Next.js build outputs
+nextjs-app/.next/
+nextjs-app/out/
+nextjs-app/build/
+nextjs-app/dist/
 
-# Database files (recreated in production)
-*.db
-*.sqlite
-*.sqlite3
-users.db
-streamlit_backend/users.db
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
 
-# Development & Backup files
-.backup_files/
-*_old.*
-*_old_*
-*_new.*
-*_new_*
-*_corrupted.*
-*_backup.*
-*_backup_*
-*.bak
-*.tmp
-*.temp
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
 *~
-
-# Logs
-*.log
-logs/
-flask_server.log
-streamlit_backend/*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 
 # OS generated files
 .DS_Store
@@ -77,76 +48,152 @@ yarn-error.log*
 .Trashes
 ehthumbs.db
 Thumbs.db
-desktop.ini
 
-# IDE/Editor files
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-.sublime-project
-.sublime-workspace
+# Logs
+logs/
+*.log
 
-# Development & Deployment Scripts
-package.sh
-generate-icons.sh
+# Temporary folders
+tmp/
+temp/
+
+# Archive and backup files
+archive/
+.backup_files/
+*.backup
+*.bak
+
+# Test files
+test-*
+*test*.js
+*test*.sh
+*test*.py
+
+# Old implementations
+streamlit_backend/
+vercel-backend/
+github-pages/
+github-pages-frontend/
+js/
+vercel-api/
+supabase-db/
+
+# Documentation (keep only main README.md and O1_PROMPT_TEMPLATE.md)
+docs/
+DEPLOYMENT*.md
+PROJECT_STATUS.md
+STREAMLIT*.md
+THREADING*.md
+FINAL_DEPLOYMENT_STATUS.md
+
+# Scripts (keep only essential ones)
+scripts/
 deploy-*.sh
-integration-test.html
+test-*.sh
+*-deployment.sh
+update_extension_for_production.py
 
-# Temporary deployment files
-ai-prompt-enhancer-production.zip
+# Package files for old implementations
+package-new.json
+bun.lock
 
-# Git backup files
-.gitignore_old
-.gitignore.bak
+# Duplicate database files
+supabase-schema.sql
+waitlist-schema-update.sql
+supabase-setup-instructions.sql
+supabase-setup.md
 
-# Python virtual environments
-venv/
-env/
-ENV/
-.venv/
+# Old backend files
+api_server.py
+main.py
+streamlit_app.py
+requirements.txt
+api_requirements.txt
 
-# Jupyter Notebook
-.ipynb_checkpoints
+# Temporary files in nextjs-app
+nextjs-app/0
+nextjs-app/database.sql
 
-# Coverage reports
-htmlcov/
-.coverage
-.coverage.*
+# Firefox extension temporary files
+firefox-extension/*.zip
+firefox-extension/web-ext-artifacts/
 
-# Production deployment artifacts
+# Vercel
 .vercel
-.netlify
 
-# IDE/Editor files
+# Production secrets (these should be set in Vercel dashboard)
+OPENROUTER_API_KEY
+SUPABASE_SERVICE_ROLE_KEY
+*.sqlite3
+supabase-db/.env*
+
+# 📦 Build Artifacts
+dist/
+build/
+*.zip
+*.tgz
+*.tar.gz
+
+# ===== GLOBAL IGNORES =====
+
+# 📚 Dependencies
+node_modules/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# 🔐 Environment & Secrets
+.env
+.env.*
+!.env.example
+secrets.toml
+.streamlit/secrets.toml
+
+# 📝 Logs & Debug
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+flask_server.log
+
+# 🛠️ Development Tools
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
-
-# OS files
 .DS_Store
 Thumbs.db
 
-# Logs
-*.log
-logs/
+# 🧪 Testing & Temporary
+test-*.html
+*_old.*
+*_new.*
+*_backup.*
+*_corrupted.*
+*.tmp
+*.temp
 
-# Development documentation
-AUDIT_REPORT.md
+# 🏗️ Platform Specific
+.vercel/
+.next/
+.nuxt/
+.cache/
+.parcel-cache/
 
-# Keep these important files:
-# - All .js, .html, .css files (extension core)
-# - manifest.json (extension manifest)
-# - icons/ folder (extension icons)
-# - streamlit_backend/app.py (main backend)
-# - streamlit_backend/flask_api.py (API server)
-# - streamlit_backend/streamlit_with_api.py (hybrid app)
-# - streamlit_backend/requirements.txt (dependencies)
-# - DEPLOYMENT.md (deployment guide)
-# - STREAMLIT_DEPLOYMENT.md (Streamlit guide)
-# - README.md (project documentation)
-# - deploy-production.sh (deployment script)
-# - deploy-streamlit.sh (Streamlit deployment)
+# 📊 Coverage & Analysis
+coverage/
+.nyc_output/
+.coverage
+*.cover
+
+# 🎯 Keep Archive but Ignore Contents
+archive/**/*.db
+archive/**/*.log
+archive/**/__pycache__/
+archive/**/*.zip
+
+# ===== ALLOW SPECIFIC FILES =====
+!**/README.md
+!**/.gitkeep

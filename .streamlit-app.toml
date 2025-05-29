@@ -1,9 +1,0 @@
-[deploy]
-# Path to the main Streamlit app file
-main_module = "streamlit_backend/streamlit_app.py"
-
-# Python version to use
-python_version = "3.10"
-
-# Install command for dependencies
-install_command = "pip install -r streamlit_backend/requirements.txt"
