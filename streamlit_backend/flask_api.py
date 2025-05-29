@@ -14,11 +14,61 @@ import json
 import os
 
 app = Flask(__name__)
+app.secret_key = "your-secret-key-change-this"
 CORS(app, origins=['*'])  # Allow all origins for development
 
 # Database helper function
 def get_db_connection():
     """Get database connection with correct path"""
+    db_path = os.path.join(os.path.dirname(__file__), 'users.db')
+    return sqlite3.connect(db_path)
+
+# Database initialization
+def init_db():
+    # Use absolute path for database
+    conn = get_db_connection()
+    c = conn.cursor()
+    
+    # Waiting list table
+    c.execute('''CREATE TABLE IF NOT EXISTS waiting_list
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                  name TEXT NOT NULL,
+                  email TEXT UNIQUE NOT NULL,
+                  reason TEXT,
+                  status TEXT DEFAULT 'pending',
+                  applied_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                  approved_date TIMESTAMP,
+                  admin_notes TEXT)''')
+    
+    # Active users table
+    c.execute('''CREATE TABLE IF NOT EXISTS users
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                  name TEXT NOT NULL,
+                  email TEXT UNIQUE NOT NULL,
+                  redemption_code TEXT UNIQUE NOT NULL,
+                  credits INTEGER DEFAULT 100,
+                  used_credits INTEGER DEFAULT 0,
+                  status TEXT DEFAULT 'active',
+                  created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                  last_used TIMESTAMP)''')
+    
+    # Usage logs
+    c.execute('''CREATE TABLE IF NOT EXISTS usage_logs
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                  user_email TEXT,
+                  redemption_code TEXT,
+                  prompt_length INTEGER,
+                  response_length INTEGER,
+                  timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                  ip_address TEXT)''')
+    
+    conn.commit()
+    conn.close()
+
+def generate_code():
+    """Generate a secure 6-character redemption code"""
+    characters = string.ascii_uppercase + string.digits
+    return ''.join(secrets.choice(characters) for _ in range(6))
     db_path = os.path.join(os.path.dirname(__file__), 'users.db')
     return sqlite3.connect(db_path)
 
@@ -335,4 +385,9 @@ if __name__ == '__main__':
     print("- POST /api/use_credit")
     print("- POST /api/enhance")
     print("- GET /health")
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    
+    # Only run the Flask app directly if not in Streamlit Cloud environment
+    # In Streamlit Cloud, the app is served through Streamlit's server
+    import os
+    if os.environ.get('STREAMLIT_SERVER_PORT') is None:
+        app.run(host='0.0.0.0', port=5000, debug=True)
