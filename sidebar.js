@@ -10,7 +10,8 @@ debugLog("Sidebar script loaded", { browserAPI: !!browserAPI });
 
 class PromptEnhancer {
     constructor() {
-        this.apiKey = '';
+        this.redemptionCode = '';
+        this.credits = 0;
         this.settings = {
             role: '',
             description: 'detailed',
@@ -30,12 +31,12 @@ class PromptEnhancer {
 
     async loadSettings() {
         try {
-            const apiKeyResult = await this.sendMessage({ action: 'getApiKey' });
-            if (apiKeyResult.success && apiKeyResult.apiKey) {
-                this.apiKey = apiKeyResult.apiKey;
-                const apiKeyInput = document.getElementById('apiKey');
-                if (apiKeyInput) {
-                    apiKeyInput.value = this.apiKey;
+            const codeResult = await this.sendMessage({ action: 'getRedemptionCode' });
+            if (codeResult.success && codeResult.redemptionCode) {
+                this.redemptionCode = codeResult.redemptionCode;
+                const codeInput = document.getElementById('redemptionCode');
+                if (codeInput) {
+                    codeInput.value = this.redemptionCode;
                 }
             }
 
@@ -43,6 +44,13 @@ class PromptEnhancer {
             if (settingsResult.success && settingsResult.settings) {
                 this.settings = { ...this.settings, ...settingsResult.settings };
                 this.populateSettingsForm();
+            }
+
+            // Load credits
+            const statsResult = await this.sendMessage({ action: 'getStats' });
+            if (statsResult.success && statsResult.stats) {
+                this.credits = statsResult.stats.credits || 0;
+                this.updateCreditsDisplay();
             }
         } catch (error) {
             console.error('Error loading settings:', error);
@@ -61,16 +69,16 @@ class PromptEnhancer {
     }
 
     setupEventListeners() {
-        // API Key management
-        const saveKeyBtn = document.getElementById('saveKey');
-        const apiKeyInput = document.getElementById('apiKey');
+        // Redemption Code management
+        const saveCodeBtn = document.getElementById('saveCode');
+        const redemptionCodeInput = document.getElementById('redemptionCode');
         
-        if (saveKeyBtn) {
-            saveKeyBtn.addEventListener('click', () => this.saveApiKey());
+        if (saveCodeBtn) {
+            saveCodeBtn.addEventListener('click', () => this.saveRedemptionCode());
         }
-        if (apiKeyInput) {
-            apiKeyInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') this.saveApiKey();
+        if (redemptionCodeInput) {
+            redemptionCodeInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') this.saveRedemptionCode();
             });
         }
 
@@ -104,67 +112,49 @@ class PromptEnhancer {
         });
     }
 
-    async saveApiKey() {
-        const apiKeyInput = document.getElementById('apiKey');
-        const statusEl = document.getElementById('keyStatus');
+    async saveRedemptionCode() {
+        const codeInput = document.getElementById('redemptionCode');
+        const statusEl = document.getElementById('codeStatus');
 
-        if (!apiKeyInput) {
-            console.error('API key input not found');
+        if (!codeInput) {
+            console.error('Redemption code input not found');
             return;
         }
 
-        const apiKey = apiKeyInput.value.trim();
+        const code = codeInput.value.trim();
 
-        if (!apiKey) {
-            this.showStatus('Please enter an API key', 'error');
+        if (!code) {
+            this.showStatus('Please enter a redemption code', 'error');
             return;
         }
 
         try {
-            // Test the API key
-            this.showStatus('Validating API key...', 'loading');
+            // Validate and save the redemption code
+            this.showStatus('Validating redemption code...', 'loading');
             
-            const isValid = await this.testApiKey(apiKey);
-            if (isValid) {
-                const result = await this.sendMessage({
-                    action: 'saveApiKey',
-                    apiKey: apiKey
-                });
-                
-                if (result.success) {
-                    this.apiKey = apiKey;
-                    this.showStatus('API key saved successfully!', 'success');
-                } else {
-                    this.showStatus('Failed to save API key: ' + result.error, 'error');
-                }
+            const result = await this.sendMessage({
+                action: 'saveRedemptionCode',
+                code: code
+            });
+            
+            if (result.success) {
+                this.redemptionCode = code;
+                this.credits = result.credits || 0;
+                this.showStatus('Redemption code saved successfully!', 'success');
+                this.updateCreditsDisplay();
             } else {
-                this.showStatus('Invalid API key. Please check and try again.', 'error');
+                this.showStatus('Invalid redemption code: ' + result.error, 'error');
             }
         } catch (error) {
-            console.error('Error saving API key:', error);
-            this.showStatus('Error validating API key', 'error');
+            console.error('Error saving redemption code:', error);
+            this.showStatus('Error validating redemption code', 'error');
         }
     }
 
-    async testApiKey(apiKey) {
-        try {
-            const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${apiKey}`
-                },
-                body: JSON.stringify({
-                    model: 'anthropic/claude-3-haiku',
-                    messages: [{ role: 'user', content: 'Test' }],
-                    max_tokens: 1
-                })
-            });
-
-            return response.status !== 401;
-        } catch (error) {
-            console.error('API key test error:', error);
-            return false;
+    updateCreditsDisplay() {
+        const creditsEl = document.getElementById('creditsDisplay');
+        if (creditsEl) {
+            creditsEl.textContent = `Credits: ${this.credits}`;
         }
     }
 
@@ -235,8 +225,13 @@ class PromptEnhancer {
             return;
         }
 
-        if (!this.apiKey) {
-            this.showStatus('Please set your OpenRouter API key first', 'error');
+        if (!this.redemptionCode) {
+            this.showStatus('Please set your redemption code first', 'error');
+            return;
+        }
+
+        if (this.credits <= 0) {
+            this.showStatus('Insufficient credits. Please contact support for more credits.', 'error');
             return;
         }
 
@@ -258,6 +253,12 @@ class PromptEnhancer {
                     enhancedPromptEl.value = result.enhancedPrompt;
                 }
                 this.showStatus('Prompt enhanced successfully!', 'success');
+                
+                // Update credits if returned
+                if (result.credits_remaining !== undefined) {
+                    this.credits = result.credits_remaining;
+                    this.updateCreditsDisplay();
+                }
             } else {
                 this.showStatus('Error: ' + result.error, 'error');
             }
@@ -273,193 +274,6 @@ class PromptEnhancer {
         }
     }
 
-    async callOpenRouter(originalPrompt) {
-        const systemPrompt = this.buildSystemPrompt();
-        
-        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${this.apiKey}`,
-                'HTTP-Referer': 'https://promptenhancer.ai',
-                'X-Title': 'AI Prompt Enhancer'
-            },
-            body: JSON.stringify({
-                model: 'anthropic/claude-3-haiku',
-                messages: [
-                    { role: 'system', content: systemPrompt },
-                    { role: 'user', content: `Please enhance this prompt: "${originalPrompt}"` }
-                ],
-                temperature: 0.7,
-                max_tokens: 1000
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error(`OpenRouter API error: ${response.status}`);
-        }
-
-        const data = await response.json();
-        return data.choices[0].message.content;
-    }
-
-    buildSystemPrompt() {
-        const roleInstruction = this.settings.role ? `Act as a ${this.settings.role}.` : '';
-        
-        const descriptionStyles = {
-            detailed: 'detailed and comprehensive',
-            creative: 'creative and engaging',
-            professional: 'professional and formal',
-            casual: 'casual and conversational',
-            technical: 'technical and precise'
-        };
-
-        const lengthStyles = {
-            short: 'Keep responses concise (1-2 paragraphs)',
-            medium: 'Provide medium-length responses (3-5 paragraphs)',
-            long: 'Give detailed responses (6+ paragraphs)',
-            comprehensive: 'Provide comprehensive analysis with extensive detail'
-        };
-
-        const formatStyles = {
-            structured: 'Structure the response with clear headings and sections',
-            bullets: 'Format the response using bullet points',
-            numbered: 'Use numbered lists to organize information',
-            paragraph: 'Write in paragraph form with smooth flow'
-        };
-
-        const toneStyles = {
-            helpful: 'helpful and informative',
-            analytical: 'analytical and critical',
-            creative: 'creative and innovative',
-            persuasive: 'persuasive and convincing',
-            educational: 'educational and explanatory'
-        };
-
-        return `# ROLE
-You are an expert prompt engineer specializing in creating highly effective, role-based prompts that maximize AI response quality and accuracy.
-
-${roleInstruction}
-
-# ENHANCEMENT SPECIFICATIONS
-
-## Description Level
-Make the prompt ${descriptionStyles[this.settings.description]} with appropriate depth and detail.
-
-## Output Length Requirements  
-${lengthStyles[this.settings.length]}
-
-## Format and Structure
-${formatStyles[this.settings.format]}
-
-## Tone and Style
-Use a ${toneStyles[this.settings.tone]} tone throughout the response.
-
-# ENHANCEMENT GUIDELINES
-
-## Context and Specificity
-- Add comprehensive context and background information
-- Include specific examples or frameworks when they enhance clarity
-- Define any domain-specific terminology or requirements
-- Provide relevant constraints and boundaries
-
-## Instruction Clarity
-- Break down complex tasks into clear, actionable steps
-- Make instructions explicit and unambiguous  
-- Include specific deliverables and success criteria
-- Address potential edge cases or considerations
-
-## Quality Optimization
-- Ensure the enhanced prompt will produce high-quality, relevant responses
-- Structure the prompt for maximum AI comprehension and performance
-- Include formatting and presentation requirements
-- Optimize for the specified parameters above
-
-# TASK
-Transform the user's basic prompt into a sophisticated, comprehensive, role-based prompt that an AI system can follow effectively.
-
-# OUTPUT REQUIREMENTS
-Return only the enhanced prompt with proper formatting and structure. Do not include explanations or meta-commentary.`;
-    }
-
-    async copyPrompt() {
-        const enhancedPromptEl = document.getElementById('enhancedPrompt');
-        if (!enhancedPromptEl || !enhancedPromptEl.value) {
-            this.showStatus('No enhanced prompt to copy', 'error');
-            return;
-        }
-
-        try {
-            await navigator.clipboard.writeText(enhancedPromptEl.value);
-            this.showStatus('Prompt copied to clipboard!', 'success');
-        } catch (error) {
-            console.error('Copy error:', error);
-            // Fallback for older browsers
-            enhancedPromptEl.select();
-            document.execCommand('copy');
-            this.showStatus('Prompt copied to clipboard!', 'success');
-        }
-    }
-
-    async insertPrompt() {
-        const enhancedPromptEl = document.getElementById('enhancedPrompt');
-        if (!enhancedPromptEl || !enhancedPromptEl.value) {
-            this.showStatus('No enhanced prompt to insert', 'error');
-            return;
-        }
-
-        try {
-            const tabs = await browserAPI.tabs.query({ active: true, currentWindow: true });
-            if (tabs[0]) {
-                await browserAPI.tabs.sendMessage(tabs[0].id, {
-                    action: 'insertPrompt',
-                    prompt: enhancedPromptEl.value
-                });
-                this.showStatus('Prompt inserted successfully!', 'success');
-            }
-        } catch (error) {
-            console.error('Insert error:', error);
-            this.showStatus('Error inserting prompt', 'error');
-        }
-    }
-
-    sendMessage(message) {
-        return new Promise((resolve, reject) => {
-            browserAPI.runtime.sendMessage(message, (response) => {
-                if (browserAPI.runtime.lastError) {
-                    reject(new Error(browserAPI.runtime.lastError.message));
-                } else {
-                    resolve(response || {});
-                }
-            });
-        });
-    }
-
-    showStatus(message, type = 'info') {
-        // Create or update status element
-        let statusEl = document.getElementById('globalStatus');
-        if (!statusEl) {
-            statusEl = document.createElement('div');
-            statusEl.id = 'globalStatus';
-            statusEl.className = 'status-message';
-            const container = document.querySelector('.enhancer-container') || document.body;
-            container.appendChild(statusEl);
-        }
-
-        statusEl.textContent = message;
-        statusEl.className = `status-message ${type}`;
-        
-        // Auto-hide success messages
-        if (type === 'success') {
-            setTimeout(() => {
-                if (statusEl.textContent === message) {
-                    statusEl.textContent = '';
-                    statusEl.className = 'status-message';
-                }
-            }, 3000);
-        }
-    }
-
     updateUI() {
         // Update role display if available
         const roleDisplay = document.getElementById('currentRole');
@@ -467,12 +281,15 @@ Return only the enhanced prompt with proper formatting and structure. Do not inc
             roleDisplay.textContent = this.settings.role || 'No specific role';
         }
 
-        // Update API status
-        const apiStatusEl = document.getElementById('apiStatus');
-        if (apiStatusEl) {
-            apiStatusEl.textContent = this.apiKey ? 'Connected' : 'Not configured';
-            apiStatusEl.className = this.apiKey ? 'status connected' : 'status disconnected';
+        // Update redemption code status
+        const codeStatusEl = document.getElementById('codeStatus');
+        if (codeStatusEl) {
+            codeStatusEl.textContent = this.redemptionCode ? 'Code configured' : 'Not configured';
+            codeStatusEl.className = this.redemptionCode ? 'status connected' : 'status disconnected';
         }
+
+        // Update credits display
+        this.updateCreditsDisplay();
     }
 }
 

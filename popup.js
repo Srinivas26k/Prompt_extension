@@ -44,13 +44,16 @@ class PopupManager {
 
   async loadStatus() {
     try {
-      // Check API key status
-      const apiKeyResult = await this.sendMessage({ action: 'getApiKey' });
-      if (apiKeyResult.success && apiKeyResult.apiKey && apiKeyResult.apiKey.length > 0) {
-        this.elements.apiStatus.textContent = 'Connected';
-        this.elements.apiStatus.className = 'status-value connected';
+      // Check redemption code and credits status
+      const codeResult = await this.sendMessage({ action: 'getRedemptionCode' });
+      const creditsResult = await this.sendMessage({ action: 'getCredits' });
+      
+      if (codeResult.success && codeResult.redemptionCode && codeResult.redemptionCode.length > 0) {
+        const credits = creditsResult.success ? creditsResult.credits : 0;
+        this.elements.apiStatus.textContent = `${credits} credits`;
+        this.elements.apiStatus.className = credits > 0 ? 'status-value connected' : 'status-value disconnected';
       } else {
-        this.elements.apiStatus.textContent = 'Not configured';
+        this.elements.apiStatus.textContent = 'No code redeemed';
         this.elements.apiStatus.className = 'status-value disconnected';
       }
 

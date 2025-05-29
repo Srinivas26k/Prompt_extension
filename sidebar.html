@@ -14,16 +14,22 @@
         </div>
 
         <div class="api-key-section">
-            <h3>🔑 API Key Setup</h3>
+            <h3>🎫 Redemption Code</h3>
             <div class="form-group">
-                <label for="apiKey">OpenRouter API Key</label>
+                <label for="redemptionCode">Redemption Code</label>
                 <div class="input-group">
-                    <input type="password" id="apiKey" placeholder="Enter your OpenRouter API key">
-                    <button id="saveKey" class="btn-secondary">Save</button>
+                    <input type="text" id="redemptionCode" placeholder="Enter your redemption code">
+                    <button id="redeemCode" class="btn-secondary">Redeem</button>
                 </div>
-                <div id="keyStatus" class="status"></div>
+                <div id="codeStatus" class="status"></div>
             </div>
-            <p class="help-text">Need an API key? <a href="https://openrouter.ai/keys" target="_blank">Get one here</a></p>
+            <div class="credits-info">
+                <div class="credits-display">
+                    <span>Credits Available: </span>
+                    <strong id="creditsCount">0</strong>
+                </div>
+            </div>
+            <p class="help-text">Need a code? <a href="https://ai-prompt-enhancer.streamlit.app" target="_blank">Register here</a></p>
         </div>
 
         <div class="settings-section">

@@ -1,5 +1,5 @@
-// Background script for AI Prompt Enhancer
-console.log("AI Prompt Enhancer background script loaded");
+// Background script for AI Prompt Enhancer Pro
+console.log("AI Prompt Enhancer Pro background script loaded");
 
 // Cross-browser compatibility
 const browserAPI = typeof browser !== 'undefined' ? browser : chrome;
@@ -16,10 +16,14 @@ debugLog("Extension background initialized", {
 
 // Storage keys
 const STORAGE_KEYS = {
-  API_KEY: 'openRouterApiKey',
+  REDEMPTION_CODE: 'redemptionCode',
   SETTINGS: 'enhancerSettings',
-  STATS: 'enhancementStats'
+  STATS: 'enhancementStats',
+  CREDITS: 'creditsRemaining'
 };
+
+// Backend configuration
+const BACKEND_URL = 'https://ai-prompt-enhancer.streamlit.app';
 
 // Default settings
 const DEFAULT_SETTINGS = {
@@ -30,62 +34,17 @@ const DEFAULT_SETTINGS = {
   tone: 'helpful'
 };
 
-// Enhanced prompt template - structured and well-formatted
-const PROMPT_TEMPLATE = `# ROLE
-You are an expert prompt engineer specializing in creating highly effective, role-based prompts that maximize AI response quality and accuracy.
-
-# GOAL
-Transform the provided basic prompt into a comprehensive, structured prompt that follows best practices for AI interaction. The enhanced prompt should be clear, detailed, and designed to produce superior results compared to the original.
-
-# ENHANCEMENT PARAMETERS
-- **Target Role**: {{ROLE}}
-- **Description Level**: {{DESCRIPTION}}
-- **Output Length**: {{LENGTH}}
-- **Format Style**: {{FORMAT}}
-- **Response Tone**: {{TONE}}
-
-# ORIGINAL PROMPT TO ENHANCE
-{{ORIGINAL_PROMPT}}
-
-# TASK REQUIREMENTS
-Create an enhanced prompt that incorporates the following elements:
-
-## 1. Clear Role Definition
-Establish a specific role or persona for the AI that aligns with the task requirements. This should be detailed enough to provide proper context and expertise framing.
-
-## 2. Comprehensive Context
-Provide all necessary background information, constraints, and relevant details that would help the AI understand the full scope of the request.
-
-## 3. Specific Instructions
-Break down the task into clear, actionable steps or requirements. Be explicit about what should be included and what should be avoided.
-
-## 4. Output Format Specification
-Define exactly how the response should be structured, formatted, and presented. Include any specific formatting requirements, sections, or organizational patterns.
-
-## 5. Quality Guidelines
-Specify the desired tone, style, complexity level, and any other qualitative aspects that will ensure the output meets expectations.
-
-# RETURN FORMAT
-Provide only the enhanced prompt as your response. Do not include explanations, meta-commentary, or additional text. The enhanced prompt should be ready to use immediately and follow the formatting style specified in the parameters above.
-
-# IMPORTANT GUIDELINES
-- Make the enhanced prompt significantly more detailed and specific than the original
-- Ensure the prompt is self-contained and doesn't require additional context
-- Structure the enhanced prompt with clear sections and formatting for readability
-- Include specific examples or constraints when they would improve clarity
-- Optimize for the specified tone, length, and format requirements`;
-
 // Storage operations
-function saveApiKey(apiKey) {
+function saveRedemptionCode(code) {
   return new Promise((resolve, reject) => {
-    debugLog("Attempting to save API key", { keyLength: apiKey?.length });
+    debugLog("Attempting to save redemption code", { codeLength: code?.length });
     
-    browserAPI.storage.local.set({ [STORAGE_KEYS.API_KEY]: apiKey }, () => {
+    browserAPI.storage.local.set({ [STORAGE_KEYS.REDEMPTION_CODE]: code }, () => {
       if (browserAPI.runtime.lastError) {
-        debugLog("API key save failed", browserAPI.runtime.lastError);
-        reject(new Error(`Failed to save API key: ${browserAPI.runtime.lastError.message}`));
+        debugLog("Redemption code save failed", browserAPI.runtime.lastError);
+        reject(new Error(`Failed to save redemption code: ${browserAPI.runtime.lastError.message}`));
       } else {
-        debugLog('API key saved successfully to local storage');
+        debugLog('Redemption code saved successfully to local storage');
         resolve(true);
       }
     });
@@ -112,19 +71,20 @@ function getStoredData() {
   return new Promise((resolve, reject) => {
     debugLog("Attempting to retrieve stored data");
     
-    browserAPI.storage.local.get([STORAGE_KEYS.API_KEY, STORAGE_KEYS.SETTINGS], (result) => {
+    browserAPI.storage.local.get([STORAGE_KEYS.REDEMPTION_CODE, STORAGE_KEYS.SETTINGS, STORAGE_KEYS.CREDITS], (result) => {
       if (browserAPI.runtime.lastError) {
         debugLog("Data retrieval failed", browserAPI.runtime.lastError);
         reject(new Error(`Failed to get stored data: ${browserAPI.runtime.lastError.message}`));
       } else {
         debugLog('Retrieved stored data:', { 
-          hasApiKey: !!result[STORAGE_KEYS.API_KEY], 
+          hasCode: !!result[STORAGE_KEYS.REDEMPTION_CODE], 
           hasSettings: !!result[STORAGE_KEYS.SETTINGS],
-          apiKeyPreview: result[STORAGE_KEYS.API_KEY] ? result[STORAGE_KEYS.API_KEY].substring(0, 8) + '...' : 'none'
+          credits: result[STORAGE_KEYS.CREDITS] || 0
         });
         resolve({
-          apiKey: result[STORAGE_KEYS.API_KEY] || '',
-          settings: result[STORAGE_KEYS.SETTINGS] || DEFAULT_SETTINGS
+          redemptionCode: result[STORAGE_KEYS.REDEMPTION_CODE] || '',
+          settings: result[STORAGE_KEYS.SETTINGS] || DEFAULT_SETTINGS,
+          credits: result[STORAGE_KEYS.CREDITS] || 0
         });
       }
     });
@@ -153,20 +113,137 @@ function updateStats() {
   });
 }
 
-// Message handlers
-async function handleSaveApiKey(request, sendResponse) {
+// Validate redemption code with backend
+async function validateRedemptionCode(code) {
   try {
-    debugLog("Save API key handler called", { hasApiKey: !!request.apiKey });
+    debugLog('Validating redemption code with backend...', { code: code.substring(0, 4) + '...' });
     
-    if (!request.apiKey) {
-      throw new Error('API key cannot be empty');
+    const response = await fetch(`${BACKEND_URL}/?action=validate&code=${encodeURIComponent(code)}`);
+    
+    if (!response.ok) {
+      throw new Error(`Validation failed: ${response.status}`);
     }
     
-    await saveApiKey(request.apiKey);
-    debugLog("API key save successful");
-    sendResponse({ success: true, message: 'API key saved successfully' });
+    const result = await response.json();
+    debugLog('Validation result:', result);
+    
+    if (result.valid) {
+      // Update local credits
+      browserAPI.storage.local.set({ [STORAGE_KEYS.CREDITS]: result.credits });
+    }
+    
+    return result;
   } catch (error) {
-    debugLog('Save API key error:', error);
+    debugLog('Validation error:', error);
+    return { valid: false, error: error.message };
+  }
+}
+
+// Enhance prompt using backend
+async function enhancePrompt(originalPrompt) {
+  try {
+    debugLog('Enhancement request received:', { 
+      promptLength: originalPrompt?.length, 
+      promptPreview: originalPrompt?.substring(0, 50) + '...' 
+    });
+    
+    if (!originalPrompt || !originalPrompt.trim()) {
+      throw new Error('Please enter a prompt to enhance');
+    }
+    
+    const { redemptionCode, settings } = await getStoredData();
+    debugLog('Retrieved data for enhancement:', { 
+      hasCode: !!redemptionCode, 
+      codePreview: redemptionCode ? redemptionCode.substring(0, 4) + '...' : 'none',
+      settings 
+    });
+    
+    if (!redemptionCode) {
+      throw new Error('Redemption code not configured. Please enter your redemption code in the extension settings.');
+    }
+    
+    const currentSettings = { ...DEFAULT_SETTINGS, ...settings };
+    debugLog('Using settings for enhancement:', currentSettings);
+    
+    // Make API call to backend
+    const response = await fetch(`${BACKEND_URL}/?action=enhance`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        code: redemptionCode,
+        prompt: originalPrompt,
+        settings: currentSettings
+      })
+    });
+    
+    debugLog('API response status:', response.status);
+
+    if (!response.ok) {
+      throw new Error(`Backend API Error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    debugLog('API response received:', { 
+      hasSuccess: !!data.success,
+      hasError: !!data.error,
+      creditsRemaining: data.credits_remaining
+    });
+    
+    if (!data.success) {
+      throw new Error(data.error || 'Unknown error from backend');
+    }
+
+    const enhancedPrompt = data.enhanced_prompt;
+    if (!enhancedPrompt) {
+      throw new Error('Empty response from backend');
+    }
+
+    // Update local credits
+    if (data.credits_remaining !== undefined) {
+      browserAPI.storage.local.set({ [STORAGE_KEYS.CREDITS]: data.credits_remaining });
+    }
+
+    // Update stats
+    await updateStats();
+    debugLog('Prompt enhanced successfully', { 
+      enhancedLength: enhancedPrompt.length,
+      enhancedPreview: enhancedPrompt.substring(0, 100) + '...',
+      creditsRemaining: data.credits_remaining
+    });
+
+    return enhancedPrompt;
+  } catch (error) {
+    debugLog('Enhancement error:', error);
+    throw error;
+  }
+}
+
+// Message handlers
+async function handleSaveRedemptionCode(request, sendResponse) {
+  try {
+    debugLog("Save redemption code handler called", { hasCode: !!request.code });
+    
+    if (!request.code) {
+      throw new Error('Redemption code cannot be empty');
+    }
+    
+    // Validate code with backend first
+    const validation = await validateRedemptionCode(request.code);
+    if (!validation.valid) {
+      throw new Error('Invalid redemption code');
+    }
+    
+    await saveRedemptionCode(request.code);
+    debugLog("Redemption code save successful");
+    sendResponse({ 
+      success: true, 
+      message: 'Redemption code saved successfully',
+      credits: validation.credits
+    });
+  } catch (error) {
+    debugLog('Save redemption code error:', error);
     sendResponse({ success: false, error: error.message });
   }
 }
@@ -184,118 +261,14 @@ async function handleSaveSettings(request, sendResponse) {
   }
 }
 
-async function enhancePrompt(originalPrompt) {
-  try {
-    debugLog('Enhancement request received:', { 
-      promptLength: originalPrompt?.length, 
-      promptPreview: originalPrompt?.substring(0, 50) + '...' 
-    });
-    
-    if (!originalPrompt || !originalPrompt.trim()) {
-      throw new Error('Please enter a prompt to enhance');
-    }
-    
-    const { apiKey, settings } = await getStoredData();
-    debugLog('Retrieved data for enhancement:', { 
-      hasApiKey: !!apiKey, 
-      apiKeyPreview: apiKey ? apiKey.substring(0, 8) + '...' : 'none',
-      settings 
-    });
-    
-    if (!apiKey) {
-      throw new Error('OpenRouter API key not configured. Please set your API key in the extension settings.');
-    }
-    
-    const currentSettings = { ...DEFAULT_SETTINGS, ...settings };
-    debugLog('Using settings for enhancement:', currentSettings);
-    
-    // Replace template variables
-    const enhancedPromptText = PROMPT_TEMPLATE
-      .replace('{{ROLE}}', currentSettings.role || 'AI Assistant')
-      .replace('{{DESCRIPTION}}', currentSettings.description)
-      .replace('{{LENGTH}}', currentSettings.length)
-      .replace('{{FORMAT}}', currentSettings.format)
-      .replace('{{TONE}}', currentSettings.tone)
-      .replace('{{ORIGINAL_PROMPT}}', originalPrompt);
-    
-    debugLog('Making API call to OpenRouter...', {
-      templateLength: enhancedPromptText.length,
-      model: 'anthropic/claude-3-haiku'
-    });
-    
-    // Call OpenRouter API
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-        'X-Title': 'AI Prompt Enhancer',
-        'HTTP-Referer': 'https://ai-prompt-enhancer.local'
-      },
-      body: JSON.stringify({
-        model: 'anthropic/claude-3-haiku',
-        messages: [{ role: 'user', content: enhancedPromptText }],
-        temperature: 0.7,
-        max_tokens: 1000
-      })
-    });
-
-    debugLog('API response status:', response.status);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      debugLog('API Error:', { status: response.status, error: errorText });
-      
-      if (response.status === 401) {
-        throw new Error('Invalid API key. Please check your OpenRouter API key.');
-      } else if (response.status === 429) {
-        throw new Error('Rate limit exceeded. Please try again later.');
-      } else if (response.status === 402) {
-        throw new Error('Insufficient credits. Please add credits to your OpenRouter account.');
-      } else {
-        throw new Error(`API Error: ${response.status} - ${errorText || 'Unknown error'}`);
-      }
-    }
-
-    const data = await response.json();
-    debugLog('API response received:', { 
-      hasChoices: !!data.choices,
-      choicesLength: data.choices?.length,
-      hasContent: !!data.choices?.[0]?.message?.content
-    });
-    
-    if (!data.choices?.[0]?.message?.content) {
-      debugLog('Invalid API response:', data);
-      throw new Error('Invalid API response format');
-    }
-
-    const enhancedPrompt = data.choices[0].message.content.trim();
-    if (!enhancedPrompt) {
-      throw new Error('Empty response from API');
-    }
-
-    // Update stats
-    await updateStats();
-    debugLog('Prompt enhanced successfully', { 
-      enhancedLength: enhancedPrompt.length,
-      enhancedPreview: enhancedPrompt.substring(0, 100) + '...'
-    });
-
-    return enhancedPrompt;
-  } catch (error) {
-    debugLog('Enhancement error:', error);
-    throw error;
-  }
-}
-
 // Message listener
 browserAPI.runtime.onMessage.addListener((request, sender, sendResponse) => {
   try {
     debugLog('Message received:', { action: request.action, sender: sender.tab?.url });
     
     switch (request.action) {
-      case 'saveApiKey':
-        handleSaveApiKey(request, sendResponse);
+      case 'saveRedemptionCode':
+        handleSaveRedemptionCode(request, sendResponse);
         break;
         
       case 'saveSettings':
@@ -314,6 +287,20 @@ browserAPI.runtime.onMessage.addListener((request, sender, sendResponse) => {
           });
         break;
         
+      case 'validateCode':
+        if (request.code) {
+          validateRedemptionCode(request.code)
+            .then(result => {
+              sendResponse({ success: true, validation: result });
+            })
+            .catch(error => {
+              sendResponse({ success: false, error: error.message });
+            });
+        } else {
+          sendResponse({ success: false, error: 'No code provided' });
+        }
+        break;
+        
       case 'getSettings':
         getStoredData()
           .then(data => {
@@ -326,23 +313,24 @@ browserAPI.runtime.onMessage.addListener((request, sender, sendResponse) => {
           });
         break;
 
-      case 'getApiKey':
+      case 'getRedemptionCode':
         getStoredData()
           .then(data => {
-            debugLog('API key retrieved successfully', { hasKey: !!data.apiKey });
-            sendResponse({ success: true, apiKey: data.apiKey });
+            debugLog('Redemption code retrieved successfully', { hasCode: !!data.redemptionCode });
+            sendResponse({ success: true, redemptionCode: data.redemptionCode });
           })
           .catch(error => {
-            debugLog('Get API key error:', error);
+            debugLog('Get redemption code error:', error);
             sendResponse({ success: false, error: error.message });
           });
         break;
 
       case 'getStats':
-        browserAPI.storage.local.get([STORAGE_KEYS.STATS], (result) => {
+        browserAPI.storage.local.get([STORAGE_KEYS.STATS, STORAGE_KEYS.CREDITS], (result) => {
           const stats = result[STORAGE_KEYS.STATS] || { total: 0, today: 0 };
-          debugLog('Stats retrieved:', stats);
-          sendResponse({ success: true, stats });
+          const credits = result[STORAGE_KEYS.CREDITS] || 0;
+          debugLog('Stats retrieved:', { ...stats, credits });
+          sendResponse({ success: true, stats: { ...stats, credits } });
         });
         break;
         
@@ -388,5 +376,5 @@ browserAPI.runtime.onInstalled.addListener((details) => {
   }
 });
 
-console.log('AI Prompt Enhancer initialized successfully');
+console.log('AI Prompt Enhancer Pro initialized successfully');
 debugLog("Background script fully loaded and ready");

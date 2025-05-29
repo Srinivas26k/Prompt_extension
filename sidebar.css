@@ -260,6 +260,24 @@ textarea {
     font-size: 11px;
 }
 
+.credits-info {
+    margin-top: 15px;
+    padding: 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 8px;
+    color: white;
+}
+
+.credits-display {
+    font-size: 16px;
+    text-align: center;
+}
+
+.credits-display strong {
+    font-size: 20px;
+    font-weight: 700;
+}
+
 /* Scrollbar styling */
 ::-webkit-scrollbar {
     width: 8px;

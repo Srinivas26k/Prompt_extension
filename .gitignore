@@ -1,4 +1,12 @@
 node_modules
 bun.lock
 dist
-
+streamlit_backend/venv
+streamlit_backend/users.db
+streamlit_backend/.streamlit
+deploy.md
+DEPLOYMENT_READY.md
+background_new.js
+background_old.js
+package.sh
+test-backend.html
