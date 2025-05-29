@@ -10,8 +10,10 @@ debugLog("Sidebar script loaded", { browserAPI: !!browserAPI });
 
 class PromptEnhancer {
     constructor() {
+        this.email = '';
         this.redemptionCode = '';
         this.credits = 0;
+        this.verified = false;
         this.settings = {
             role: '',
             description: 'detailed',
@@ -31,9 +33,16 @@ class PromptEnhancer {
 
     async loadSettings() {
         try {
+            // First try to import from web verification
+            const importResult = await this.sendMessage({ action: 'importWebCredentials' });
+            if (importResult.success) {
+                this.showStatus('Credentials imported from web verification', 'success');
+            }
+            
             const codeResult = await this.sendMessage({ action: 'getRedemptionCode' });
             if (codeResult.success && codeResult.redemptionCode) {
                 this.redemptionCode = codeResult.redemptionCode;
+                this.verified = true;
                 const codeInput = document.getElementById('redemptionCode');
                 if (codeInput) {
                     codeInput.value = this.redemptionCode;
@@ -46,10 +55,10 @@ class PromptEnhancer {
                 this.populateSettingsForm();
             }
 
-            // Load credits
-            const statsResult = await this.sendMessage({ action: 'getStats' });
-            if (statsResult.success && statsResult.stats) {
-                this.credits = statsResult.stats.credits || 0;
+            // Load credits from backend
+            const creditsResult = await this.sendMessage({ action: 'checkCredits' });
+            if (creditsResult.success) {
+                this.credits = creditsResult.credits || 0;
                 this.updateCreditsDisplay();
             }
         } catch (error) {
@@ -110,11 +119,41 @@ class PromptEnhancer {
                 element.addEventListener('change', () => this.autoSaveSettings());
             }
         });
+
+        // Verification page link
+        const verifyBtn = document.getElementById('openVerification');
+        if (verifyBtn) {
+            verifyBtn.addEventListener('click', () => this.openVerificationPage());
+        }
+    }
+
+    updateCreditsDisplay() {
+        const creditsEl = document.getElementById('creditsCount');
+        const statusEl = document.getElementById('connectionStatus');
+        
+        if (creditsEl) {
+            creditsEl.textContent = this.credits;
+        }
+        
+        if (statusEl) {
+            if (this.verified && this.redemptionCode) {
+                statusEl.textContent = 'Verified';
+                statusEl.className = 'status connected';
+            } else {
+                statusEl.textContent = 'Not Verified';
+                statusEl.className = 'status disconnected';
+            }
+        }
+    }
+
+    openVerificationPage() {
+        // Open the verification page
+        const verifyUrl = browserAPI.runtime.getURL('verify.html');
+        browserAPI.tabs.create({ url: verifyUrl });
     }
 
     async saveRedemptionCode() {
         const codeInput = document.getElementById('redemptionCode');
-        const statusEl = document.getElementById('codeStatus');
 
         if (!codeInput) {
             console.error('Redemption code input not found');
@@ -140,36 +179,25 @@ class PromptEnhancer {
             if (result.success) {
                 this.redemptionCode = code;
                 this.credits = result.credits || 0;
-                this.showStatus('Redemption code saved successfully!', 'success');
+                this.verified = true;
                 this.updateCreditsDisplay();
+                this.showStatus('Redemption code saved successfully!', 'success');
             } else {
                 this.showStatus('Invalid redemption code: ' + result.error, 'error');
             }
         } catch (error) {
             console.error('Error saving redemption code:', error);
-            this.showStatus('Error validating redemption code', 'error');
-        }
-    }
-
-    updateCreditsDisplay() {
-        const creditsEl = document.getElementById('creditsDisplay');
-        if (creditsEl) {
-            creditsEl.textContent = `Credits: ${this.credits}`;
+            this.showStatus('Error saving redemption code', 'error');
         }
     }
 
     async saveSettings() {
-        const roleInput = document.getElementById('role');
-        const descInput = document.getElementById('description');
-        const lengthInput = document.getElementById('length');
-        const formatInput = document.getElementById('format');
-        const toneInput = document.getElementById('tone');
-
-        if (roleInput) this.settings.role = roleInput.value.trim();
-        if (descInput) this.settings.description = descInput.value;
-        if (lengthInput) this.settings.length = lengthInput.value;
-        if (formatInput) this.settings.format = formatInput.value;
-        if (toneInput) this.settings.tone = toneInput.value;
+        // Get current form values
+        this.settings.role = document.getElementById('role')?.value || '';
+        this.settings.description = document.getElementById('description')?.value || 'detailed';
+        this.settings.length = document.getElementById('length')?.value || 'medium';
+        this.settings.format = document.getElementById('format')?.value || 'structured';
+        this.settings.tone = document.getElementById('tone')?.value || 'helpful';
 
         try {
             const result = await this.sendMessage({
@@ -225,75 +253,134 @@ class PromptEnhancer {
             return;
         }
 
-        if (!this.redemptionCode) {
-            this.showStatus('Please set your redemption code first', 'error');
+        // Check if user is verified
+        if (!this.verified || !this.redemptionCode) {
+            this.showStatus('Please verify your redemption code first', 'error');
+            this.openVerificationPage();
             return;
         }
 
+        // Check credits
         if (this.credits <= 0) {
-            this.showStatus('Insufficient credits. Please contact support for more credits.', 'error');
+            this.showStatus('No credits remaining. Contact support for more credits.', 'error');
             return;
         }
 
         try {
             if (enhanceBtn) {
                 enhanceBtn.disabled = true;
-                enhanceBtn.innerHTML = '<span class="loading-spinner"></span>Enhancing...';
+                enhanceBtn.textContent = 'Enhancing...';
             }
+            
             this.showStatus('Enhancing your prompt...', 'loading');
-
+            
             const result = await this.sendMessage({
                 action: 'enhancePrompt',
                 prompt: originalPrompt
             });
-
+            
             if (result.success) {
                 const enhancedPromptEl = document.getElementById('enhancedPrompt');
                 if (enhancedPromptEl) {
                     enhancedPromptEl.value = result.enhancedPrompt;
                 }
-                this.showStatus('Prompt enhanced successfully!', 'success');
                 
-                // Update credits if returned
-                if (result.credits_remaining !== undefined) {
-                    this.credits = result.credits_remaining;
-                    this.updateCreditsDisplay();
-                }
+                // Update credits after successful enhancement
+                this.credits = Math.max(0, this.credits - 1);
+                this.updateCreditsDisplay();
+                
+                this.showStatus('Prompt enhanced successfully!', 'success');
             } else {
-                this.showStatus('Error: ' + result.error, 'error');
+                this.showStatus('Enhancement failed: ' + result.error, 'error');
             }
-
         } catch (error) {
-            console.error('Enhancement error:', error);
-            this.showStatus('Error enhancing prompt. Please try again.', 'error');
+            console.error('Error enhancing prompt:', error);
+            this.showStatus('Error enhancing prompt', 'error');
         } finally {
             if (enhanceBtn) {
                 enhanceBtn.disabled = false;
-                enhanceBtn.innerHTML = 'Enhance Prompt';
+                enhanceBtn.textContent = 'Enhance Prompt';
             }
+        }
+    }
+
+    async copyPrompt() {
+        const enhancedPromptEl = document.getElementById('enhancedPrompt');
+        
+        if (!enhancedPromptEl || !enhancedPromptEl.value) {
+            this.showStatus('No enhanced prompt to copy', 'error');
+            return;
+        }
+
+        try {
+            await navigator.clipboard.writeText(enhancedPromptEl.value);
+            this.showStatus('Enhanced prompt copied to clipboard!', 'success');
+        } catch (error) {
+            // Fallback for older browsers
+            enhancedPromptEl.select();
+            document.execCommand('copy');
+            this.showStatus('Enhanced prompt copied to clipboard!', 'success');
+        }
+    }
+
+    async insertPrompt() {
+        const enhancedPromptEl = document.getElementById('enhancedPrompt');
+        
+        if (!enhancedPromptEl || !enhancedPromptEl.value) {
+            this.showStatus('No enhanced prompt to insert', 'error');
+            return;
+        }
+
+        try {
+            const tabs = await browserAPI.tabs.query({ active: true, currentWindow: true });
+            if (tabs[0]) {
+                await browserAPI.tabs.sendMessage(tabs[0].id, {
+                    action: 'insertPrompt',
+                    prompt: enhancedPromptEl.value
+                });
+                this.showStatus('Enhanced prompt inserted into page!', 'success');
+            }
+        } catch (error) {
+            console.error('Error inserting prompt:', error);
+            this.showStatus('Error inserting prompt', 'error');
         }
     }
 
     updateUI() {
-        // Update role display if available
-        const roleDisplay = document.getElementById('currentRole');
-        if (roleDisplay) {
-            roleDisplay.textContent = this.settings.role || 'No specific role';
-        }
-
-        // Update redemption code status
-        const codeStatusEl = document.getElementById('codeStatus');
-        if (codeStatusEl) {
-            codeStatusEl.textContent = this.redemptionCode ? 'Code configured' : 'Not configured';
-            codeStatusEl.className = this.redemptionCode ? 'status connected' : 'status disconnected';
-        }
-
-        // Update credits display
         this.updateCreditsDisplay();
+    }
+
+    showStatus(message, type = 'info') {
+        const statusEl = document.getElementById('status');
+        if (statusEl) {
+            statusEl.textContent = message;
+            statusEl.className = `status ${type}`;
+            
+            // Clear status after a few seconds for non-error messages
+            if (type !== 'error') {
+                setTimeout(() => {
+                    statusEl.textContent = '';
+                    statusEl.className = 'status';
+                }, 3000);
+            }
+        }
+        console.log(`Status (${type}): ${message}`);
+    }
+
+    async sendMessage(message) {
+        return new Promise((resolve, reject) => {
+            browserAPI.runtime.sendMessage(message, (response) => {
+                if (browserAPI.runtime.lastError) {
+                    reject(new Error(browserAPI.runtime.lastError.message));
+                } else {
+                    resolve(response || {});
+                }
+            });
+        });
     }
 }
 
-// Initialize the extension when DOM is loaded
+// Initialize the enhancer when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     new PromptEnhancer();
 });

@@ -1,58 +1,128 @@
 # AI Prompt Enhancer Firefox Extension
 
-Transform basic prompts into perfect, role-based prompts using OpenRouter AI.
+🚀 **Transform basic prompts into perfect, role-based prompts using OpenRouter AI with integrated credit system and admin dashboard.**
+
+## 🌟 Overview
+
+The AI Prompt Enhancer is a comprehensive Firefox extension that revolutionizes how you interact with AI platforms. It includes a credit-based backend system, admin dashboard, and seamless integration with multiple AI chat platforms.
+
+## 🏗️ Architecture
+
+### Frontend Components
+- **Firefox Extension**: Main user interface with floating button, sidebar panel, and context menu
+- **Background Service**: Handles API communication and credit management
+- **Content Scripts**: Integrates with AI platforms (Claude.ai, ChatGPT, etc.)
+
+### Backend Infrastructure
+- **Flask API**: RESTful backend for user management and credit system
+- **Streamlit Admin Dashboard**: Real-time monitoring and user management
+- **SQLite Database**: User data, credits, and usage analytics
+- **Credit System**: Token-based usage tracking with 100 free credits per user
 
 ## 🚀 Features
 
+### Core Functionality
 - **Smart Prompt Enhancement**: Transform basic prompts into sophisticated, role-based prompts
-- **OpenRouter Integration**: Uses OpenRouter AI API for intelligent prompt transformation
-- **Multiple AI Chat Platform Support**: Works on Claude.ai, ChatGPT, and other AI platforms
-- **Real-time Enhancement**: Enhance prompts directly in text areas with a floating button
-- **Customizable Settings**: Configure role, tone, length, format, and description level
+- **Multi-Platform Support**: Works on Claude.ai, ChatGPT, and other AI platforms
+- **Real-time Enhancement**: Enhance prompts directly in text areas with floating button
 - **Context Menu Integration**: Right-click selected text to enhance it
-- **Statistics Tracking**: Track daily and total prompt enhancements
+- **Customizable Settings**: Configure role, tone, length, format, and description level
 
-## 📦 Installation
+### Credit System
+- **User Registration**: Email-based account creation with verification codes
+- **Credit Tracking**: 100 free credits per user with usage monitoring
+- **Real-time Updates**: Live credit balance display and usage alerts
+- **Admin Dashboard**: Comprehensive user and usage analytics
 
-### Manual Installation (Recommended)
+### Security Features
+- **Secure API Integration**: CORS-enabled Flask backend with proper error handling
+- **Data Protection**: User data encryption and secure storage
+- **Rate Limiting**: Built-in protection against abuse
 
-1. **Download the Extension**
-   - Use the `ai-prompt-enhancer-v1.0.0.zip` file in this directory
+## 📦 Installation & Deployment
 
-2. **Install in Firefox**
-   - Open Firefox and go to `about:debugging`
-   - Click "This Firefox" on the left sidebar
-   - Click "Load Temporary Add-on..."
-   - Select the `ai-prompt-enhancer-v1.0.0.zip` file
+### Quick Setup (Development)
 
-3. **Configure OpenRouter API Key**
-   - Get your API key from [OpenRouter.ai](https://openrouter.ai)
-   - Click the extension icon in the toolbar
-   - Click "Open Sidebar Panel"
-   - Enter your API key and click "Save API Key"
+1. **Clone Repository**
+   ```bash
+   git clone <repository-url>
+   cd Prompt_extension
+   ```
+
+2. **Setup Backend**
+   ```bash
+   cd streamlit_backend
+   pip install -r requirements.txt
+   python flask_api.py &
+   streamlit run app.py
+   ```
+
+3. **Install Extension**
+   - Open Firefox: `about:debugging`
+   - Click "Load Temporary Add-on"
+   - Select `manifest.json`
+
+### Production Deployment
+
+For complete production deployment instructions, see [DEPLOYMENT.md](./DEPLOYMENT.md)
+
+#### Quick Production Setup
+```bash
+chmod +x deploy-production.sh
+./deploy-production.sh
+```
+
+This script automatically:
+- Updates all URLs to production endpoints
+- Creates optimized extension package
+- Prepares files for deployment
 
 ## 🔧 Usage
 
-### Method 1: Floating Button
+### User Registration & Verification
+1. **First Time Setup**
+   - Click extension icon → "Register/Verify Account"
+   - Enter your email address
+   - Receive verification code (6-character alphanumeric)
+   - Enter code to activate 100 free credits
+
+2. **Account Management**
+   - View current credit balance in real-time
+   - Track usage history in admin dashboard
+   - Monitor remaining credits before enhancement
+
+### Enhancement Methods
+
+#### Method 1: Floating Button (Recommended)
 1. Visit any AI chat platform (Claude.ai, ChatGPT, etc.)
-2. Start typing in a text area
-3. When you have 10+ characters, a floating ✨ button will appear
-4. Click the button to enhance your prompt automatically
+2. Start typing in a text area (10+ characters)
+3. Click the floating ✨ button that appears
+4. Enhanced prompt automatically replaces original text
+5. Credit balance updates in real-time
 
-### Method 2: Sidebar Panel
-1. Click the extension icon in the toolbar
-2. Click "Open Sidebar Panel"
-3. Paste your prompt in the "Original Prompt" field
-4. Configure settings (role, tone, length, etc.)
-5. Click "Enhance Prompt"
-6. Copy or insert the enhanced prompt
+#### Method 2: Sidebar Panel
+1. Click extension icon → "Open Sidebar Panel"
+2. Paste prompt in "Original Prompt" field
+3. Configure enhancement settings:
+   - **Role**: Academic, Professional, Creative, Technical
+   - **Tone**: Formal, Casual, Persuasive, Analytical
+   - **Length**: Concise, Detailed, Comprehensive
+   - **Format**: Structured, Conversational, Technical
+4. Click "Enhance Prompt"
+5. Copy or auto-insert enhanced prompt
 
-### Method 3: Context Menu
+#### Method 3: Context Menu
 1. Select any text on a webpage
-2. Right-click and choose "Enhance with AI"
-3. The enhanced text will replace the selection
+2. Right-click → "Enhance with AI"
+3. Enhanced text replaces selection
+4. Works on any website with text content
 
-## ⚙️ Settings
+### Admin Dashboard Access
+- **URL**: Visit admin dashboard (see DEPLOYMENT.md for URL)
+- **Features**: User management, credit monitoring, usage analytics
+- **Real-time Updates**: Live user activity and system health
+
+## ⚙️ Configuration
 
 Configure these options in the sidebar panel:
 

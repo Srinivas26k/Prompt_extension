@@ -194,12 +194,112 @@
         .openrouter-info a:hover {
             text-decoration: underline;
         }
+
+        /* Registration Form Styles */
+        .registration-form {
+            background: #f8fffe;
+            border: 2px solid #e8f4f8;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 40px 0;
+            text-align: left;
+        }
+
+        .registration-form h3 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+            font-size: 1.5rem;
+        }
+
+        .registration-form > p {
+            text-align: center;
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .checkbox-label {
+            display: flex !important;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            width: auto !important;
+            margin: 0;
+        }
+
+        .result-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .result-message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .result-message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .result-message.loading {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="logo">✨</div>
-        <h1>Welcome to AI Prompt Enhancer</h1>
+        <h1>AI Prompt Enhancer</h1>
         <p class="subtitle">Transform your basic prompts into perfect, role-based prompts that get better AI results</p>
 
         <div class="features">
@@ -211,55 +311,86 @@
             <div class="feature">
                 <div class="feature-icon">🌐</div>
                 <h3>Multi-Platform</h3>
-                <p>Works seamlessly with Claude, ChatGPT, Perplexity, and Grok</p>
+                <p>Works seamlessly with Claude, ChatGPT, Perplexity, and other AI platforms</p>
             </div>
             <div class="feature">
                 <div class="feature-icon">⚙️</div>
-                <h3>Customizable</h3>
-                <p>Set your preferred role, tone, length, and format for personalized results</p>
+                <h3>Credit System</h3>
+                <p>Get 100 free credits to start, with each enhancement costing just 1 credit</p>
             </div>
         </div>
 
-        <div class="openrouter-info">
-            <h4>🎫 Redemption Code Required</h4>
-            <p>This extension uses our secure backend to enhance your prompts with AI. Register for free to get a redemption code with 100 free credits. Each prompt enhancement costs 1 credit.</p>
+        <!-- Registration Form -->
+        <div class="registration-form">
+            <h3>🎫 Join the Waiting List</h3>
+            <p>Register below to receive your free redemption code with 100 credits</p>
+            
+            <form id="registrationForm" onsubmit="handleRegistration(event)">
+                <div class="form-group">
+                    <label for="name">Full Name *</label>
+                    <input type="text" id="name" name="name" required placeholder="Enter your full name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email Address *</label>
+                    <input type="email" id="email" name="email" required placeholder="Enter your email address">
+                </div>
+                
+                <div class="form-group">
+                    <label for="reason">Why do you want to use AI Prompt Enhancer? (Optional)</label>
+                    <textarea id="reason" name="reason" placeholder="Tell us how you plan to use this tool..." rows="3"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="terms" name="terms" required>
+                        I agree to the terms of service and privacy policy
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    Join Waiting List
+                </button>
+            </form>
+            
+            <div id="registrationResult" class="result-message"></div>
         </div>
 
         <div class="setup-steps">
-            <h3>Quick Setup Guide</h3>
+            <h3>What happens next?</h3>
             <div class="step">
                 <div class="step-number">1</div>
                 <div class="step-content">
-                    <h4>Register for Free</h4>
-                    <p>Visit our registration page to join the waiting list and receive your redemption code via email.</p>
+                    <h4>You Submit This Form</h4>
+                    <p>Fill out the registration form above and join our waiting list</p>
                 </div>
             </div>
             <div class="step">
                 <div class="step-number">2</div>
                 <div class="step-content">
-                    <h4>Check Your Email</h4>
-                    <p>You'll receive a redemption code with 100 free credits in your email inbox.</p>
+                    <h4>We Review Your Application</h4>
+                    <p>Our team will review your application (usually within 24 hours)</p>
                 </div>
             </div>
             <div class="step">
                 <div class="step-number">3</div>
                 <div class="step-content">
-                    <h4>Redeem Your Code</h4>
-                    <p>Open the extension sidebar and enter your redemption code to activate your credits.</p>
+                    <h4>Receive Your Code</h4>
+                    <p>You'll get a redemption code with 100 free credits via email</p>
                 </div>
             </div>
             <div class="step">
                 <div class="step-number">4</div>
                 <div class="step-content">
                     <h4>Start Enhancing</h4>
-                    <p>Visit any AI platform, type your prompt, and click the "✨ Enhance" button or use the sidebar!</p>
+                    <p>Install the Firefox extension and start enhancing your prompts!</p>
                 </div>
             </div>
         </div>
 
         <div class="cta-buttons">
-            <a href="https://ai-prompt-enhancer.streamlit.app" target="_blank" class="btn btn-primary">Get Redemption Code</a>
-            <button class="btn btn-secondary">Open Sidebar</button>
+            <a href="#registrationForm" class="btn btn-primary">Join Waiting List</a>
+            <a href="verify.html" class="btn btn-secondary">Already Have a Code?</a>
         </div>
     </div>
 

@@ -1,12 +1,152 @@
-node_modules
+# ========================
+# AI PROMPT ENHANCER - PRODUCTION .GITIGNORE
+# ========================
+
+# Dependencies & Package Managers
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
 bun.lock
-dist
-streamlit_backend/venv
+.pnpm-debug.log*
+
+# Build outputs and packages
+dist/
+build/
+.next/
+out/
+*.zip
+*.tar.gz
+*.tgz
+
+# Environment variables & Configuration
+.env
+.env.*
+!.env.example
+config.local.*
+
+# Python Backend Files
+streamlit_backend/venv/
+streamlit_backend/__pycache__/
+streamlit_backend/*.pyc
+streamlit_backend/.streamlit/
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Database files (recreated in production)
+*.db
+*.sqlite
+*.sqlite3
+users.db
 streamlit_backend/users.db
-streamlit_backend/.streamlit
-deploy.md
-DEPLOYMENT_READY.md
-background_new.js
-background_old.js
+
+# Development & Backup files
+.backup_files/
+*_old.*
+*_old_*
+*_new.*
+*_new_*
+*_corrupted.*
+*_backup.*
+*_backup_*
+*.bak
+*.tmp
+*.temp
+*~
+
+# Logs
+*.log
+logs/
+flask_server.log
+streamlit_backend/*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# IDE/Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.sublime-project
+.sublime-workspace
+
+# Development & Deployment Scripts
 package.sh
-test-backend.html
+generate-icons.sh
+deploy-*.sh
+integration-test.html
+
+# Temporary deployment files
+ai-prompt-enhancer-production.zip
+
+# Git backup files
+.gitignore_old
+.gitignore.bak
+
+# Python virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+
+# Production deployment artifacts
+.vercel
+.netlify
+
+# IDE/Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Development documentation
+AUDIT_REPORT.md
+
+# Keep these important files:
+# - All .js, .html, .css files (extension core)
+# - manifest.json (extension manifest)
+# - icons/ folder (extension icons)
+# - streamlit_backend/app.py (main backend)
+# - streamlit_backend/flask_api.py (API server)
+# - streamlit_backend/streamlit_with_api.py (hybrid app)
+# - streamlit_backend/requirements.txt (dependencies)
+# - DEPLOYMENT.md (deployment guide)
+# - STREAMLIT_DEPLOYMENT.md (Streamlit guide)
+# - README.md (project documentation)
+# - deploy-production.sh (deployment script)
+# - deploy-streamlit.sh (Streamlit deployment)
