@@ -22,7 +22,7 @@ st.set_page_config(
 )
 
 # Admin password - CHANGE THIS IN PRODUCTION!
-ADMIN_PASSWORD = "admin123"
+ADMIN_PASSWORD = "srinivas@13579#"
 
 # Database helper function
 def get_db_connection():
@@ -186,6 +186,215 @@ def approve_user(email, admin_notes=""):
 
 # Initialize database
 init_db()
+
+# Admin Dashboard Interface
+def admin_dashboard():
+    """Protected admin interface for managing users and applications"""
+    
+    # Simple password protection
+    if 'admin_logged_in' not in st.session_state:
+        st.session_state.admin_logged_in = False
+    
+    if not st.session_state.admin_logged_in:
+        st.title("🔐 Admin Login")
+        st.warning("⚠️ Admin password updated for security!")
+        password = st.text_input("Admin Password", type="password")
+        
+        if st.button("Login"):
+            if password == ADMIN_PASSWORD:
+                st.session_state.admin_logged_in = True
+                st.rerun()
+            else:
+                st.error("Invalid password")
+        return
+    
+    # Admin Dashboard
+    st.title("🎯 AI Prompt Enhancer - Admin Dashboard")
+    
+    # Logout button in sidebar
+    with st.sidebar:
+        st.write("👋 Welcome, Admin")
+        if st.button("🚪 Logout"):
+            st.session_state.admin_logged_in = False
+            st.rerun()
+    
+    # Main dashboard tabs
+    tab1, tab2, tab3, tab4 = st.tabs(["📝 Applications", "👥 Active Users", "📊 Analytics", "⚙️ Manual Tools"])
+    
+    with tab1:
+        st.subheader("📋 Pending Applications")
+        
+        # Get pending applications
+        conn = get_db_connection()
+        pending = conn.execute("""
+            SELECT id, name, email, reason, applied_date 
+            FROM waiting_list 
+            WHERE status = 'pending' 
+            ORDER BY applied_date DESC
+        """).fetchall()
+        conn.close()
+        
+        if pending:
+            for app_id, name, email, reason, applied_date in pending:
+                with st.container():
+                    col1, col2, col3 = st.columns([3, 1, 1])
+                    
+                    with col1:
+                        st.write(f"**{name}** ({email})")
+                        st.write(f"Reason: {reason or 'Not provided'}")
+                        st.caption(f"Applied: {applied_date}")
+                    
+                    with col2:
+                        if st.button("✅ Approve", key=f"approve_{app_id}"):
+                            result = approve_user(email, "Approved by admin")
+                            if result["success"]:
+                                st.success(f"✅ Approved!")
+                                st.code(f"Redemption Code: {result['code']}")
+                                st.info("📧 Send this code to the user via email")
+                                st.rerun()
+                            else:
+                                st.error(result["message"])
+                    
+                    with col3:
+                        if st.button("❌ Reject", key=f"reject_{app_id}"):
+                            conn = get_db_connection()
+                            conn.execute("""UPDATE waiting_list SET status = 'rejected' 
+                                          WHERE id = ?""", (app_id,))
+                            conn.commit()
+                            conn.close()
+                            st.success("Application rejected")
+                            st.rerun()
+                    
+                    st.divider()
+        else:
+            st.info("✨ No pending applications")
+    
+    with tab2:
+        st.subheader("👥 Active Users")
+        
+        # Get active users
+        conn = get_db_connection()
+        users = conn.execute("""
+            SELECT name, email, redemption_code, credits, used_credits, created_date, last_used, status
+            FROM users 
+            ORDER BY created_date DESC
+        """).fetchall()
+        conn.close()
+        
+        if users:
+            for name, email, code, credits, used, created, last_used, status in users:
+                with st.container():
+                    col1, col2, col3 = st.columns([2, 2, 1])
+                    
+                    with col1:
+                        st.write(f"**{name}** ({email})")
+                        st.caption(f"Code: `{code}`")
+                        st.caption(f"Created: {created}")
+                    
+                    with col2:
+                        remaining = credits - used
+                        progress = used / credits if credits > 0 else 0
+                        st.metric("Credits", f"{remaining}/{credits}")
+                        st.progress(progress)
+                        if last_used:
+                            st.caption(f"Last used: {last_used}")
+                        else:
+                            st.caption("Never used")
+                    
+                    with col3:
+                        status_color = "🟢" if status == "active" else "🔴"
+                        st.write(f"{status_color} {status}")
+                        
+                        if status == "active":
+                            if st.button("🚫 Revoke", key=f"revoke_{code}"):
+                                conn = get_db_connection()
+                                conn.execute("UPDATE users SET status = 'revoked' WHERE redemption_code = ?", (code,))
+                                conn.commit()
+                                conn.close()
+                                st.success("Access revoked")
+                                st.rerun()
+                    
+                    st.divider()
+        else:
+            st.info("👤 No active users yet")
+    
+    with tab3:
+        st.subheader("📊 System Analytics")
+        
+        conn = get_db_connection()
+        
+        # Overall stats
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            total_apps = conn.execute("SELECT COUNT(*) FROM waiting_list").fetchone()[0]
+            st.metric("Total Applications", total_apps)
+        
+        with col2:
+            pending_apps = conn.execute("SELECT COUNT(*) FROM waiting_list WHERE status = 'pending'").fetchone()[0]
+            st.metric("Pending", pending_apps)
+        
+        with col3:
+            active_users = conn.execute("SELECT COUNT(*) FROM users WHERE status = 'active'").fetchone()[0]
+            st.metric("Active Users", active_users)
+        
+        with col4:
+            total_usage = conn.execute("SELECT COUNT(*) FROM usage_logs").fetchone()[0]
+            st.metric("Total API Calls", total_usage)
+        
+        # Recent usage
+        st.subheader("🕐 Recent Usage")
+        recent_usage = conn.execute("""
+            SELECT ul.user_email, ul.timestamp, ul.prompt_length, ul.response_length
+            FROM usage_logs ul
+            ORDER BY ul.timestamp DESC
+            LIMIT 10
+        """).fetchall()
+        
+        if recent_usage:
+            for email, timestamp, prompt_len, response_len in recent_usage:
+                st.write(f"📧 {email} - {timestamp}")
+                st.caption(f"Prompt: {prompt_len} chars, Response: {response_len} chars")
+                st.divider()
+        else:
+            st.info("📊 No usage data yet")
+        
+        conn.close()
+    
+    with tab4:
+        st.subheader("🔧 Manual Tools")
+        
+        # Manual code generation
+        st.write("**🎫 Generate Manual Code**")
+        with st.form("manual_code"):
+            manual_name = st.text_input("Name")
+            manual_email = st.text_input("Email")
+            manual_credits = st.number_input("Credits", min_value=1, value=100)
+            
+            if st.form_submit_button("Generate Code"):
+                if manual_name and manual_email:
+                    # Generate code directly
+                    code = generate_code()
+                    conn = get_db_connection()
+                    
+                    try:
+                        # Ensure unique code
+                        while True:
+                            c = conn.execute("SELECT redemption_code FROM users WHERE redemption_code = ?", (code,))
+                            if not c.fetchone():
+                                break
+                            code = generate_code()
+                        
+                        conn.execute("""INSERT INTO users (name, email, redemption_code, credits) 
+                                       VALUES (?, ?, ?, ?)""", (manual_name, manual_email, code, manual_credits))
+                        conn.commit()
+                        st.success(f"✅ Code generated successfully!")
+                        st.code(f"Redemption Code: {code}")
+                        st.info("📧 Send this code to the user")
+                    except sqlite3.IntegrityError:
+                        st.error("❌ Email already exists")
+                    finally:
+                        conn.close()
 
 # Handle API requests based on query parameters
 query_params = st.query_params
@@ -363,8 +572,7 @@ if 'endpoint' in query_params:
 
 else:
     # Check if accessing admin dashboard
-    query_params = st.query_params
-    if 'admin' in query_params:
+    if 'admin' in st.query_params:
         admin_dashboard()
     else:
         # Default landing page
@@ -395,214 +603,5 @@ else:
         st.markdown("""
         - **Environment**: Streamlit Cloud
         - **Database**: SQLite with automatic initialization
-    - **API Format**: Query parameter based for Streamlit compatibility
-    """)
-
-    # Admin Dashboard Interface
-    def admin_dashboard():
-        """Protected admin interface for managing users and applications"""
-
-        # Simple password protection
-        if 'admin_logged_in' not in st.session_state:
-            st.session_state.admin_logged_in = False
-
-        if not st.session_state.admin_logged_in:
-            st.title("🔐 Admin Login")
-            st.warning("⚠️ Default password is 'admin123' - Change this in production!")
-            password = st.text_input("Admin Password", type="password")
-
-            if st.button("Login"):
-                if password == ADMIN_PASSWORD:
-                    st.session_state.admin_logged_in = True
-                    st.rerun()
-                else:
-                    st.error("Invalid password")
-            return
-
-        # Admin Dashboard
-        st.title("🎯 AI Prompt Enhancer - Admin Dashboard")
-
-        # Logout button in sidebar
-        with st.sidebar:
-            st.write("👋 Welcome, Admin")
-            if st.button("🚪 Logout"):
-                st.session_state.admin_logged_in = False
-                st.rerun()
-
-        # Main dashboard tabs
-        tab1, tab2, tab3, tab4 = st.tabs(["📝 Applications", "👥 Active Users", "📊 Analytics", "⚙️ Manual Tools"])
-
-        with tab1:
-            st.subheader("📋 Pending Applications")
-
-            # Get pending applications
-            conn = get_db_connection()
-            pending = conn.execute("""
-                SELECT id, name, email, reason, applied_date 
-                FROM waiting_list 
-                WHERE status = 'pending' 
-                ORDER BY applied_date DESC
-            """).fetchall()
-            conn.close()
-
-            if pending:
-                for app_id, name, email, reason, applied_date in pending:
-                    with st.container():
-                        col1, col2, col3 = st.columns([3, 1, 1])
-
-                        with col1:
-                            st.write(f"**{name}** ({email})")
-                            st.write(f"Reason: {reason or 'Not provided'}")
-                            st.caption(f"Applied: {applied_date}")
-
-                        with col2:
-                            if st.button("✅ Approve", key=f"approve_{app_id}"):
-                                result = approve_user(email, "Approved by admin")
-                                if result["success"]:
-                                    st.success(f"✅ Approved!")
-                                    st.code(f"Redemption Code: {result['code']}")
-                                    st.info("📧 Send this code to the user via email")
-                                    st.rerun()
-                                else:
-                                    st.error(result["message"])
-
-                        with col3:
-                            if st.button("❌ Reject", key=f"reject_{app_id}"):
-                                conn = get_db_connection()
-                                conn.execute("""UPDATE waiting_list SET status = 'rejected' 
-                                                  WHERE id = ?""", (app_id,))
-                                conn.commit()
-                                conn.close()
-                                st.success("Application rejected")
-                                st.rerun()
-
-                        st.divider()
-            else:
-                st.info("✨ No pending applications")
-
-        with tab2:
-            st.subheader("👥 Active Users")
-
-            # Get active users
-            conn = get_db_connection()
-            users = conn.execute("""
-                SELECT name, email, redemption_code, credits, used_credits, created_date, last_used, status
-                FROM users 
-                ORDER BY created_date DESC
-            """).fetchall()
-            conn.close()
-
-            if users:
-                for name, email, code, credits, used, created, last_used, status in users:
-                    with st.container():
-                        col1, col2, col3 = st.columns([2, 2, 1])
-
-                        with col1:
-                            st.write(f"**{name}** ({email})")
-                            st.caption(f"Code: `{code}`")
-                            st.caption(f"Created: {created}")
-
-                        with col2:
-                            remaining = credits - used
-                            progress = used / credits if credits > 0 else 0
-                            st.metric("Credits", f"{remaining}/{credits}")
-                            st.progress(progress)
-                            if last_used:
-                                st.caption(f"Last used: {last_used}")
-                            else:
-                                st.caption("Never used")
-
-                        with col3:
-                            status_color = "🟢" if status == "active" else "🔴"
-                            st.write(f"{status_color} {status}")
-                            
-                            if status == "active":
-                                if st.button("🚫 Revoke", key=f"revoke_{code}"):
-                                    conn = get_db_connection()
-                                    conn.execute("UPDATE users SET status = 'revoked' WHERE redemption_code = ?", (code,))
-                                    conn.commit()
-                                    conn.close()
-                                    st.success("Access revoked")
-                                    st.rerun()
-
-                        st.divider()
-            else:
-                st.info("👤 No active users yet")
-
-        with tab3:
-            st.subheader("📊 System Analytics")
-
-            conn = get_db_connection()
-
-            # Overall stats
-            col1, col2, col3, col4 = st.columns(4)
-
-            with col1:
-                total_apps = conn.execute("SELECT COUNT(*) FROM waiting_list").fetchone()[0]
-                st.metric("Total Applications", total_apps)
-
-            with col2:
-                pending_apps = conn.execute("SELECT COUNT(*) FROM waiting_list WHERE status = 'pending'").fetchone()[0]
-                st.metric("Pending", pending_apps)
-
-            with col3:
-                active_users = conn.execute("SELECT COUNT(*) FROM users WHERE status = 'active'").fetchone()[0]
-                st.metric("Active Users", active_users)
-
-            with col4:
-                total_usage = conn.execute("SELECT COUNT(*) FROM usage_logs").fetchone()[0]
-                st.metric("Total API Calls", total_usage)
-
-            # Recent usage
-            st.subheader("🕐 Recent Usage")
-            recent_usage = conn.execute("""
-                SELECT ul.user_email, ul.timestamp, ul.prompt_length, ul.response_length
-                FROM usage_logs ul
-                ORDER BY ul.timestamp DESC
-                LIMIT 10
-            """).fetchall()
-
-            if recent_usage:
-                for email, timestamp, prompt_len, response_len in recent_usage:
-                    st.write(f"📧 {email} - {timestamp}")
-                    st.caption(f"Prompt: {prompt_len} chars, Response: {response_len} chars")
-                    st.divider()
-            else:
-                st.info("📊 No usage data yet")
-
-            conn.close()
-
-        with tab4:
-            st.subheader("🔧 Manual Tools")
-
-            # Manual code generation
-            st.write("**🎫 Generate Manual Code**")
-            with st.form("manual_code"):
-                manual_name = st.text_input("Name")
-                manual_email = st.text_input("Email")
-                manual_credits = st.number_input("Credits", min_value=1, value=100)
-                
-                if st.form_submit_button("Generate Code"):
-                    if manual_name and manual_email:
-                        # Generate code directly
-                        code = generate_code()
-                        conn = get_db_connection()
-                        
-                        try:
-                            # Ensure unique code
-                            while True:
-                                c = conn.execute("SELECT redemption_code FROM users WHERE redemption_code = ?", (code,))
-                                if not c.fetchone():
-                                    break
-                                code = generate_code()
-                            
-                            conn.execute("""INSERT INTO users (name, email, redemption_code, credits) 
-                                           VALUES (?, ?, ?, ?)""", (manual_name, manual_email, code, manual_credits))
-                            conn.commit()
-                            st.success(f"✅ Code generated successfully!")
-                            st.code(f"Redemption Code: {code}")
-                            st.info("📧 Send this code to the user")
-                        except sqlite3.IntegrityError:
-                            st.error("❌ Email already exists")
-                        finally:
-                            conn.close()
+        - **API Format**: Query parameter based for Streamlit compatibility
+        """)
