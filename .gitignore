@@ -150,3 +150,4 @@ AUDIT_REPORT.md
 # - README.md (project documentation)
 # - deploy-production.sh (deployment script)
 # - deploy-streamlit.sh (Streamlit deployment)
+.streamlit/secrets.toml
