@@ -6,6 +6,11 @@ function debugLog(message, data = null) {
     console.log(`[Sidebar Debug] ${message}`, data || '');
 }
 
+// Debug logging
+function debugLog(message, data = null) {
+    console.log(`[Sidebar Debug] ${message}`, data || '');
+}
+
 debugLog("Sidebar script loaded", { browserAPI: !!browserAPI });
 
 class PromptEnhancer {
@@ -67,9 +72,24 @@ class PromptEnhancer {
             const apiKeyResult = await this.sendMessage({ action: 'getApiKey' });
             if (apiKeyResult.success && apiKeyResult.apiKey) {
                 this.apiKey = apiKeyResult.apiKey;
+                
+                // Hide API key input and show saved status
                 const apiKeyInput = document.getElementById('apiKey');
+                const saveKeyBtn = document.getElementById('saveKey');
+                const keyStatus = document.getElementById('keyStatus');
+                
                 if (apiKeyInput) {
-                    apiKeyInput.value = this.apiKey;
+                    apiKeyInput.style.display = 'none';
+                }
+                
+                if (saveKeyBtn) {
+                    saveKeyBtn.textContent = 'Change Key';
+                    saveKeyBtn.onclick = () => this.showApiKeyInput();
+                }
+                
+                if (keyStatus) {
+                    keyStatus.textContent = 'API Key Saved ✓';
+                    keyStatus.className = 'status connected';
                 }
             }
 
@@ -277,6 +297,21 @@ class PromptEnhancer {
                 if (result.success) {
                     this.apiKey = apiKey;
                     this.showStatus('API key saved successfully!', 'success');
+                    
+                    // Hide the API key input and show saved status
+                    apiKeyInput.style.display = 'none';
+                    const saveKeyBtn = document.getElementById('saveKey');
+                    if (saveKeyBtn) {
+                        saveKeyBtn.textContent = 'Change Key';
+                        saveKeyBtn.onclick = () => this.showApiKeyInput();
+                    }
+                    
+                    // Show saved status
+                    const keyStatus = document.getElementById('keyStatus');
+                    if (keyStatus) {
+                        keyStatus.textContent = 'API Key Saved ✓';
+                        keyStatus.className = 'status connected';
+                    }
                 } else {
                     this.showStatus('Failed to save API key: ' + result.error, 'error');
                 }
@@ -294,22 +329,47 @@ class PromptEnhancer {
             const provider = this.currentProvider;
             const model = this.currentModel || this.getDefaultModel(provider);
             
+            debugLog('Testing API key:', { provider, model, keyLength: apiKey?.length });
+            
             const config = this.getProviderConfig(provider, apiKey, model);
+            
+            const testRequest = {
+                ...config.body,
+                messages: [{ role: 'user', content: 'Test connection' }],
+                max_tokens: 5,
+                temperature: 0.1
+            };
+            
+            debugLog('Test API request:', { url: config.url, headers: Object.keys(config.headers) });
             
             const response = await fetch(config.url, {
                 method: 'POST',
                 headers: config.headers,
-                body: JSON.stringify({
-                    ...config.body,
-                    messages: [{ role: 'user', content: 'Test' }],
-                    max_tokens: 1
-                })
+                body: JSON.stringify(testRequest)
             });
 
-            return response.status !== 401;
+            debugLog('Test API response:', { status: response.status, statusText: response.statusText });
+            
+            if (response.status === 401) {
+                return false; // Invalid API key
+            } else if (response.status === 402) {
+                // Insufficient credits but API key is valid
+                return true;
+            } else if (response.status >= 200 && response.status < 300) {
+                return true; // Success
+            } else if (response.status === 429) {
+                // Rate limited but API key is valid
+                return true;
+            } else {
+                // Other errors - might still be valid key, just other issues
+                const errorText = await response.text();
+                debugLog('API test error:', { status: response.status, error: errorText });
+                return true; // Assume valid to avoid false negatives
+            }
         } catch (error) {
             console.error('API key test error:', error);
-            return false;
+            // Network errors shouldn't invalidate the key
+            return true;
         }
     }
 
@@ -528,6 +588,56 @@ class PromptEnhancer {
         } catch (error) {
             console.error('Error opening website:', error);
             this.showStatus('Error opening website', 'error');
+        }
+    }
+
+    showApiKeyInput() {
+        const apiKeyInput = document.getElementById('apiKey');
+        const saveKeyBtn = document.getElementById('saveKey');
+        const keyStatus = document.getElementById('keyStatus');
+        
+        if (apiKeyInput) {
+            apiKeyInput.style.display = 'block';
+            apiKeyInput.value = '';
+            apiKeyInput.focus();
+        }
+        
+        if (saveKeyBtn) {
+            saveKeyBtn.textContent = 'Save';
+            saveKeyBtn.onclick = () => this.saveApiKey();
+        }
+        
+        if (keyStatus) {
+            keyStatus.textContent = '';
+            keyStatus.className = 'status';
+        }
+    }
+
+    showStatus(message, type = 'info') {
+        // Try multiple possible status elements
+        const statusElements = [
+            document.getElementById('enhanceStatus'),  // For enhancement operations
+            document.getElementById('settingsStatus'), // For settings operations
+            document.getElementById('keyStatus'),      // For API key operations
+            document.querySelector('.status-message')
+        ];
+        
+        const statusEl = statusElements.find(el => el !== null);
+        
+        if (statusEl) {
+            statusEl.textContent = message;
+            statusEl.className = `status ${type}`;
+            
+            // Auto-clear status after 3 seconds for success/error messages
+            if (type === 'success' || type === 'error') {
+                setTimeout(() => {
+                    statusEl.textContent = '';
+                    statusEl.className = 'status';
+                }, 3000);
+            }
+        } else {
+            // Fallback to console if no status element found
+            console.log(`[${type.toUpperCase()}] ${message}`);
         }
     }
 }
