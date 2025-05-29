@@ -1,8 +1,6 @@
 """
-Streamlit Cloud deployment for AI Prompt Enhancer API
-
-This file serves as the main entry point for Streamlit Cloud deployment.
-It creates API endpoints using Streamlit's query parameters for compatibility.
+Streamlit-based API server for AI Prompt Enhancer
+This creates API endpoints using Streamlit's query parameters and session state
 """
 
 import streamlit as st
@@ -67,6 +65,10 @@ def init_db():
     
     conn.commit()
     conn.close()
+
+def generate_code():
+    """Generate a secure 8-character redemption code"""
+    return ''.join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(8))
 
 def generate_enhanced_prompt(original_prompt, settings):
     """Generate enhanced prompt using Ben's methodology"""
@@ -318,6 +320,15 @@ else:
     st.title("🚀 AI Prompt Enhancer API")
     st.markdown("### API Server Status: ✅ Running")
     
+    # Get the current URL
+    try:
+        current_url = st.context.get_option("server.baseUrlPath") or ""
+        if not current_url:
+            # Fallback for Streamlit Cloud
+            current_url = "https://your-app-name.streamlit.app"
+    except:
+        current_url = "https://your-app-name.streamlit.app"
+    
     st.markdown("### Available API Endpoints:")
     endpoints = [
         ("GET", "?endpoint=register&name=John&email=john@example.com&reason=Development", "Register for access"),
@@ -328,11 +339,26 @@ else:
     ]
     
     for method, endpoint, description in endpoints:
-        st.markdown(f"- **{method}** `{endpoint}` - {description}")
+        st.markdown(f"- **{method}** `{current_url}{endpoint}` - {description}")
     
     st.markdown("### Configuration")
-    st.markdown("""
+    st.markdown(f"""
     - **Environment**: Streamlit Cloud
     - **Database**: SQLite with automatic initialization
     - **API Format**: Query parameter based for Streamlit compatibility
+    """)
+    
+    st.markdown("### Usage Example")
+    st.code(f"""
+# Health check
+{current_url}?endpoint=health
+
+# Register new user
+{current_url}?endpoint=register&name=John Doe&email=john@example.com&reason=For development
+
+# Check credits
+{current_url}?endpoint=check_credits&redemption_code=ABC12345
+
+# Enhance prompt
+{current_url}?endpoint=enhance&prompt=Write a blog post&redemption_code=ABC12345&role=content writer&tone=professional
     """)
