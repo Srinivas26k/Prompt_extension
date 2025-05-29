@@ -12,7 +12,9 @@ const CONFIG = {
         ENHANCE: 'enhance',
         HEALTH: 'health'
     },
-    USE_MOCK_API: true // Enable mock API for demo purposes
+    USE_MOCK_API: false, // Try real API first, fallback to mock if needed
+    MAX_RETRIES: 2,
+    RETRY_DELAY: 1000
 };
 
 // Utility Functions
@@ -81,59 +83,163 @@ WARNINGS: Focus on proven learning methods and avoid overwhelming the learner wi
         }
     },
 
-    // Make API calls with fallback to mock
+    // Make API calls with multiple fallback strategies
     async callAPI(endpoint, params = {}) {
-        // Use mock API for now due to Streamlit Cloud authentication issues
+        // If already using mock API, continue with mock
         if (CONFIG.USE_MOCK_API) {
             return this.mockAPI(endpoint, params);
         }
 
-        try {
+        // Try multiple strategies to connect to Streamlit
+        const strategies = [
+            () => this.tryDirectStreamlitCall(endpoint, params),
+            () => this.trySimpleProxy(endpoint, params),
+            () => this.tryPostRequest(endpoint, params)
+        ];
+
+        for (let i = 0; i < strategies.length; i++) {
+            try {
+                console.log(`Trying API strategy ${i + 1}...`);
+                const result = await strategies[i]();
+                if (result && result.success !== false) {
+                    console.log(`✅ Strategy ${i + 1} succeeded!`);
+                    return result;
+                }
+            } catch (error) {
+                console.warn(`Strategy ${i + 1} failed:`, error.message);
+            }
+        }
+
+        // All strategies failed, fall back to mock API
+        console.warn('All API strategies failed, falling back to mock API');
+        CONFIG.USE_MOCK_API = true;
+        return this.mockAPI(endpoint, params);
+    },
+
+    // Strategy 1: Direct Streamlit call with proper headers
+    async tryDirectStreamlitCall(endpoint, params = {}) {
+        const url = new URL(CONFIG.STREAMLIT_API_URL);
+        url.searchParams.set('endpoint', endpoint);
+        
+        // Add all parameters to URL
+        Object.entries(params).forEach(([key, value]) => {
+            if (value !== null && value !== undefined && value !== '') {
+                url.searchParams.set(key, value);
+            }
+        });
+
+        console.log('Direct API Call:', url.toString());
+
+        const response = await fetch(url.toString(), {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'User-Agent': 'Mozilla/5.0 (compatible; AIPromptEnhancer/1.0)',
+                'Referer': window.location.origin
+            },
+            mode: 'cors',
+            credentials: 'omit'
+        });
+
+        // Check if we're getting an auth redirect
+        if (response.url.includes('share.streamlit.io/-/auth/') || response.url.includes('login')) {
+            throw new Error('Authentication required');
+        }
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const text = await response.text();
+        
+        // Check if response looks like JSON
+        if (text.trim().startsWith('{') && text.trim().endsWith('}')) {
+            return JSON.parse(text);
+        } else {
+            throw new Error('Non-JSON response received');
+        }
+    },
+
+    // Strategy 2: Try using a simple proxy approach
+    async trySimpleProxy(endpoint, params = {}) {
+        // Create a simple iframe approach to bypass CORS
+        return new Promise((resolve, reject) => {
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            
             const url = new URL(CONFIG.STREAMLIT_API_URL);
             url.searchParams.set('endpoint', endpoint);
-            
-            // Add all parameters to URL
             Object.entries(params).forEach(([key, value]) => {
                 if (value !== null && value !== undefined && value !== '') {
                     url.searchParams.set(key, value);
                 }
             });
 
-            console.log('API Call:', url.toString());
+            iframe.src = url.toString();
+            
+            // Timeout after 5 seconds
+            const timeout = setTimeout(() => {
+                document.body.removeChild(iframe);
+                reject(new Error('Iframe proxy timeout'));
+            }, 5000);
 
-            const response = await fetch(url.toString(), {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                },
-                mode: 'cors'
-            });
+            iframe.onload = () => {
+                try {
+                    // Try to read iframe content
+                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                    const content = iframeDoc.body.textContent;
+                    
+                    clearTimeout(timeout);
+                    document.body.removeChild(iframe);
+                    
+                    if (content && content.trim().startsWith('{')) {
+                        resolve(JSON.parse(content));
+                    } else {
+                        reject(new Error('Invalid iframe response'));
+                    }
+                } catch (error) {
+                    clearTimeout(timeout);
+                    document.body.removeChild(iframe);
+                    reject(error);
+                }
+            };
 
-            // Check if we're getting an auth redirect
-            if (response.url.includes('share.streamlit.io/-/auth/')) {
-                console.warn('Streamlit authentication required, falling back to mock API');
-                CONFIG.USE_MOCK_API = true;
-                return this.mockAPI(endpoint, params);
+            iframe.onerror = () => {
+                clearTimeout(timeout);
+                document.body.removeChild(iframe);
+                reject(new Error('Iframe load error'));
+            };
+
+            document.body.appendChild(iframe);
+        });
+    },
+
+    // Strategy 3: Try POST request with form data
+    async tryPostRequest(endpoint, params = {}) {
+        const formData = new FormData();
+        formData.append('endpoint', endpoint);
+        Object.entries(params).forEach(([key, value]) => {
+            if (value !== null && value !== undefined && value !== '') {
+                formData.append(key, value);
             }
+        });
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+        const response = await fetch(CONFIG.STREAMLIT_API_URL, {
+            method: 'POST',
+            body: formData,
+            mode: 'cors',
+            credentials: 'omit'
+        });
 
-            // Try to parse as JSON
-            const text = await response.text();
-            try {
-                return JSON.parse(text);
-            } catch (e) {
-                // If not JSON, likely Streamlit HTML response
-                console.warn('Non-JSON response received, falling back to mock API');
-                CONFIG.USE_MOCK_API = true;
-                return this.mockAPI(endpoint, params);
-            }
-        } catch (error) {
-            console.error('API call failed, using mock API:', error);
-            CONFIG.USE_MOCK_API = true;
-            return this.mockAPI(endpoint, params);
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const text = await response.text();
+        if (text.trim().startsWith('{') && text.trim().endsWith('}')) {
+            return JSON.parse(text);
+        } else {
+            throw new Error('Non-JSON response from POST');
         }
     },
 

@@ -3,6 +3,11 @@ headless = true
 enableCORS = false
 enableXsrfProtection = false
 baseUrlPath = ""
+enableStaticServing = true
+allowRunOnSave = false
+
+[global]
+developmentMode = false
 
 [client]
 caching = false
