@@ -24,7 +24,9 @@ CORS(flask_app, origins=['*'])
 
 # Database initialization
 def init_db():
-    conn = sqlite3.connect('users.db')
+    # Use absolute path for database like in other files
+    db_path = os.path.join(os.path.dirname(__file__), 'users.db')
+    conn = sqlite3.connect(db_path)
     c = conn.cursor()
     
     # Waiting list table

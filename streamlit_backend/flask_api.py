@@ -376,18 +376,17 @@ def health_check():
     return jsonify({"status": "healthy", "message": "API server is running"})
 
 if __name__ == '__main__':
+    # Initialize database
     init_db()
-    print("Flask API server starting...")
+    
+    print("\nFlask API Server for AI Prompt Enhancer")
     print("Available endpoints:")
-    print("- POST/GET /api/register")
-    print("- POST/GET /api/verify") 
-    print("- POST/GET /api/check_credits")
+    print("- POST /api/register")
+    print("- POST /api/verify")
+    print("- POST /api/check_credits")
     print("- POST /api/use_credit")
     print("- POST /api/enhance")
     print("- GET /health")
     
-    # Only run the Flask app directly if not in Streamlit Cloud environment
-    # In Streamlit Cloud, the app is served through Streamlit's server
-    import os
-    if os.environ.get('STREAMLIT_SERVER_PORT') is None:
-        app.run(host='0.0.0.0', port=5000, debug=True)
+    print("Starting Flask server locally...")
+    app.run(host='0.0.0.0', port=5000, debug=True)
