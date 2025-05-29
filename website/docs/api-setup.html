@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Setup Guide - AI Prompt Enhancer</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/docs.css">
+    <link rel="icon" type="image/x-icon" href="../../icons/icon48.png">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <img src="../../icons/icon48.png" alt="AI Prompt Enhancer" class="nav-logo">
+                <a href="../index.html" class="nav-title">AI Prompt Enhancer</a>
+            </div>
+            <div class="nav-menu">
+                <a href="../index.html" class="nav-link">Home</a>
+                <a href="index.html" class="nav-link">Docs</a>
+                <a href="setup.html" class="nav-link">Setup</a>
+                <a href="examples.html" class="nav-link">Examples</a>
+                <a href="troubleshooting.html" class="nav-link">Troubleshooting</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="docs-main">
+        <div class="docs-container">
+            <aside class="docs-sidebar">
+                <h3>API Setup Guide</h3>
+                <nav class="docs-nav">
+                    <a href="#overview" class="docs-nav-link active">Overview</a>
+                    <a href="#openrouter" class="docs-nav-link">OpenRouter (Recommended)</a>
+                    <a href="#openai" class="docs-nav-link">OpenAI</a>
+                    <a href="#anthropic" class="docs-nav-link">Anthropic</a>
+                    <a href="#groq" class="docs-nav-link">Groq</a>
+                    <a href="#perplexity" class="docs-nav-link">Perplexity</a>
+                    <a href="#configuration" class="docs-nav-link">Configuration</a>
+                    <a href="#troubleshooting" class="docs-nav-link">Common Issues</a>
+                </nav>
+            </aside>
+
+            <div class="docs-content">
+                <article>
+                    <h1>API Setup Guide</h1>
+                    
+                    <section id="overview">
+                        <h2>Overview</h2>
+                        <p>To use AI Prompt Enhancer, you need an API key from one of the supported AI providers. This guide walks you through getting API keys for each provider and configuring them in the extension.</p>
+                        
+                        <div class="highlight-box">
+                            <h3>💡 Which Provider Should I Choose?</h3>
+                            <p><strong>For beginners:</strong> We recommend <strong>OpenRouter</strong> as it provides access to multiple AI models through a single API key and often has competitive pricing.</p>
+                            <p><strong>For specific needs:</strong> Choose the provider that hosts the AI model you prefer (e.g., OpenAI for GPT-4, Anthropic for Claude).</p>
+                        </div>
+
+                        <div class="provider-comparison">
+                            <h3>Quick Comparison</h3>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Provider</th>
+                                        <th>Best For</th>
+                                        <th>Free Tier</th>
+                                        <th>Setup Difficulty</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>OpenRouter</strong></td>
+                                        <td>Multiple models, competitive pricing</td>
+                                        <td>$5 credit</td>
+                                        <td>Easy</td>
+                                    </tr>
+                                    <tr>
+                                        <td>OpenAI</td>
+                                        <td>Latest GPT models</td>
+                                        <td>$5 credit</td>
+                                        <td>Easy</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Anthropic</td>
+                                        <td>Claude models</td>
+                                        <td>$5 credit</td>
+                                        <td>Medium</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Groq</td>
+                                        <td>Fast inference</td>
+                                        <td>Free tier</td>
+                                        <td>Easy</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Perplexity</td>
+                                        <td>Web-enhanced responses</td>
+                                        <td>Limited free</td>
+                                        <td>Medium</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    <section id="openrouter">
+                        <h2>OpenRouter (Recommended)</h2>
+                        <p>OpenRouter provides access to multiple AI models through a single API, making it the most flexible choice for beginners.</p>
+                        
+                        <div class="steps-container">
+                            <div class="step-item">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <h3>Create Account</h3>
+                                    <p>Visit <a href="https://openrouter.ai/" target="_blank">openrouter.ai</a> and click "Sign Up" to create a free account.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="step-item">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <h3>Add Credits</h3>
+                                    <p>Go to the "Credits" section and add at least $5 to your account. New users often receive bonus credits.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="step-item">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <h3>Generate API Key</h3>
+                                    <p>Navigate to the "Keys" section and click "Create Key". Give it a descriptive name like "AI Prompt Enhancer".</p>
+                                </div>
+                            </div>
+                            
+                            <div class="step-item">
+                                <div class="step-number">4</div>
+                                <div class="step-content">
+                                    <h3>Copy Your Key</h3>
+                                    <p>Copy the generated API key. It should start with "sk-or-". Keep this secure!</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="highlight-box">
+                            <h3>🎯 Recommended Models on OpenRouter</h3>
+                            <ul>
+                                <li><strong>Claude 3 Haiku:</strong> Fast and cost-effective for most tasks</li>
+                                <li><strong>GPT-4o Mini:</strong> Good balance of performance and cost</li>
+                                <li><strong>Claude 3 Sonnet:</strong> High quality for complex prompts</li>
+                                <li><strong>Gemini Flash 1.5:</strong> Great for general use</li>
+                            </ul>
+                        </div>
+                    </section>
+
+                    <section id="openai">
+                        <h2>OpenAI</h2>
+                        <p>Direct access to OpenAI's GPT models with the latest features and updates.</p>
+                        
+                        <div class="steps-container">
+                            <div class="step-item">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <h3>Create Account</h3>
+                                    <p>Go to <a href="https://platform.openai.com/" target="_blank">platform.openai.com</a> and sign up for an account.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="step-item">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <h3>Verify Phone Number</h3>
+                                    <p>Complete phone verification to access the API. This is required for all new accounts.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="step-item">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <h3>Add Payment Method</h3>
+                                    <p>Go to "Billing" and add a payment method. You'll receive $5 in free credits to start.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="step-item">
+                                <div class="step-number">4</div>
+                                <div class="step-content">
+                                    <h3>Create API Key</h3>
+                                    <p>In "API Keys", click "Create new secret key". Name it "AI Prompt Enhancer" and copy the key.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="cta-box">
+                            <h3>💰 Cost Management Tips</h3>
+                            <p>Set usage limits in your OpenAI account to prevent unexpected charges. GPT-4o Mini is the most cost-effective option for prompt enhancement.</p>
+                        </div>
+                    </section>
+
+                    <section id="anthropic">
+                        <h2>Anthropic</h2>
+                        <p>Access to Claude models, known for their helpfulness and safety features.</p>
+                        
+                        <div class="steps-container">
+                            <div class="step-item">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <h3>Request Access</h3>
+                                    <p>Visit <a href="https://console.anthropic.com/" target="_blank">console.anthropic.com</a> and request API access. This may require a waitlist.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="step-item">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <h3>Complete Verification</h3>
+                                    <p>Once approved, complete account verification including phone number confirmation.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="step-item">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <h3>Add Credits</h3>
+                                    <p>Add credits to your account. New users typically receive $5 in free credits.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="step-item">
+                                <div class="step-number">4</div>
+                                <div class="step-content">
+                                    <h3>Generate Key</h3>
+                                    <p>Create an API key in the dashboard. It will start with "sk-ant-".</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="groq">
+                        <h2>Groq</h2>
+                        <p>Ultra-fast inference with open-source models, perfect for rapid prompt enhancement.</p>
+                        
+                        <div class="steps-container">
+                            <div class="step-item">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <h3>Sign Up</h3>
+                                    <p>Go to <a href="https://groq.com/" target="_blank">groq.com</a> and create a free account.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="step-item">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <h3>Access Console</h3>
+                                    <p>After verification, access the GroqCloud console to manage your API keys.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="step-item">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <h3>Create API Key</h3>
+                                    <p>Generate a new API key for use with the extension. Keys start with "gsk_".</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="highlight-box">
+                            <h3>⚡ Why Choose Groq?</h3>
+                            <ul>
+                                <li>Extremely fast response times (often under 1 second)</li>
+                                <li>Generous free tier with rate limits</li>
+                                <li>Open-source models like Llama and Mixtral</li>
+                                <li>Great for real-time prompt enhancement</li>
+                            </ul>
+                        </div>
+                    </section>
+
+                    <section id="perplexity">
+                        <h2>Perplexity</h2>
+                        <p>AI models with web search capabilities for up-to-date information in enhanced prompts.</p>
+                        
+                        <div class="steps-container">
+                            <div class="step-item">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <h3>Create Account</h3>
+                                    <p>Visit <a href="https://perplexity.ai/" target="_blank">perplexity.ai</a> and sign up for an account.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="step-item">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <h3>Subscribe to Pro</h3>
+                                    <p>API access requires a Pro subscription. This includes API credits and advanced features.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="step-item">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <h3>Generate API Key</h3>
+                                    <p>In your account settings, find the API section and generate your key.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="configuration">
+                        <h2>Configuring the Extension</h2>
+                        <p>Once you have your API key, here's how to configure the AI Prompt Enhancer extension:</p>
+                        
+                        <div class="steps-container">
+                            <div class="step-item">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <h3>Open Extension</h3>
+                                    <p>Click the AI Prompt Enhancer icon in your browser toolbar, or use the keyboard shortcut.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="step-item">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <h3>Enter API Key</h3>
+                                    <p>In the "API Configuration" section, paste your API key into the designated field.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="step-item">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <h3>Select Provider</h3>
+                                    <p>Choose your AI provider from the dropdown menu (OpenRouter, OpenAI, etc.).</p>
+                                </div>
+                            </div>
+                            
+                            <div class="step-item">
+                                <div class="step-number">4</div>
+                                <div class="step-content">
+                                    <h3>Choose Model</h3>
+                                    <p>Select your preferred AI model from the available options for your provider.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="step-item">
+                                <div class="step-number">5</div>
+                                <div class="step-content">
+                                    <h3>Test Configuration</h3>
+                                    <p>Use the "Test Enhancement" feature to verify your setup is working correctly.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="highlight-box">
+                            <h3>🔒 Security Note</h3>
+                            <p>Your API key is stored locally in your browser and never sent to our servers. The extension communicates directly with your chosen AI provider.</p>
+                        </div>
+                    </section>
+
+                    <section id="troubleshooting">
+                        <h2>Common Issues</h2>
+                        
+                        <div class="troubleshooting-grid">
+                            <div class="issue-item">
+                                <h3>❌ "Invalid API Key" Error</h3>
+                                <p><strong>Solution:</strong> Double-check that you've copied the entire API key without extra spaces. Ensure your account has sufficient credits.</p>
+                            </div>
+                            
+                            <div class="issue-item">
+                                <h3>⚠️ "Rate Limit Exceeded"</h3>
+                                <p><strong>Solution:</strong> You've hit your provider's rate limits. Wait a few minutes or upgrade your plan for higher limits.</p>
+                            </div>
+                            
+                            <div class="issue-item">
+                                <h3>💰 "Insufficient Credits"</h3>
+                                <p><strong>Solution:</strong> Add more credits to your AI provider account. Check your billing dashboard for current balance.</p>
+                            </div>
+                            
+                            <div class="issue-item">
+                                <h3>🌐 "Connection Error"</h3>
+                                <p><strong>Solution:</strong> Check your internet connection. Some corporate networks may block AI provider APIs.</p>
+                            </div>
+                        </div>
+
+                        <div class="cta-box">
+                            <h3>Still Having Issues?</h3>
+                            <p>Check our detailed troubleshooting guide or report the issue on GitHub.</p>
+                            <a href="troubleshooting.html" class="btn btn-secondary">Troubleshooting Guide</a>
+                        </div>
+                    </section>
+                </article>
+            </div>
+        </div>
+    </main>
+
+    <script src="../js/main.js"></script>
+</body>
+</html>
+
+<style>
+.provider-comparison table {
+    width: 100%;
+    margin: 1.5rem 0;
+}
+
+.troubleshooting-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.issue-item {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+}
+
+.issue-item h3 {
+    color: #dc2626;
+    margin-bottom: 1rem;
+    margin-top: 0;
+    font-size: 1.125rem;
+}
+
+.issue-item p {
+    margin: 0;
+    font-size: 0.925rem;
+}
+</style>

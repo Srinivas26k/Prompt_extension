@@ -1,6 +1,8 @@
 # AI Prompt Enhancer Firefox Extension
 
-Transform your basic prompts into perfect, role-based prompts that maximize AI response quality and accuracy.
+Transform your basic prompts into perfect, role-based prompts that maximize AI response quality and accuracy. **Free and open-source** - powered by community contributions.
+
+**Created by Srinivas | Ideavaults Community**
 
 ## ✨ Features
 
@@ -52,42 +54,117 @@ Transform your basic prompts into perfect, role-based prompts that maximize AI r
 4. Select the downloaded ZIP file
 5. Click "Add" when prompted
 
-## 🔧 Setup
+## ⚙️ Setup
 
-### 1. Choose Your AI Provider
-1. Click the extension icon in the toolbar
-2. Select your preferred AI provider from the dropdown
-3. Choose the appropriate model for your needs
+### 1. Get an API Key
+Choose your preferred AI provider and get an API key:
 
-### 2. Configure API Key
-Get your API key from one of these providers:
+- **OpenRouter** (Recommended): [openrouter.ai/keys](https://openrouter.ai/keys)
+- **OpenAI**: [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
+- **Anthropic**: [console.anthropic.com](https://console.anthropic.com/)
+- **Groq**: [console.groq.com/keys](https://console.groq.com/keys)
+- **Perplexity**: [perplexity.ai/settings/api](https://www.perplexity.ai/settings/api)
 
-- **OpenRouter**: [https://openrouter.ai/keys](https://openrouter.ai/keys)
-- **OpenAI**: [https://platform.openai.com/api-keys](https://platform.openai.com/api-keys)
-- **Anthropic**: [https://console.anthropic.com/](https://console.anthropic.com/)
-- **Groq**: [https://console.groq.com/keys](https://console.groq.com/keys)
-- **Perplexity**: [https://www.perplexity.ai/settings/api](https://www.perplexity.ai/settings/api)
+### 2. Configure the Extension
+1. Click the extension icon in the Firefox toolbar
+2. Click "Open Settings" to access the sidebar
+3. Select your AI provider from the dropdown
+4. Choose your preferred model
+5. Enter your API key and click "Save"
+6. Customize your enhancement settings (optional)
 
-### 3. Customize Settings
-Configure enhancement parameters:
-- **Role**: Set a specific persona (optional)
-- **Description Level**: Choose detail depth
-- **Output Length**: Select response size
-- **Format Style**: Pick structure type
-- **Response Tone**: Set communication style
+### 3. Start Enhancing
+- **Manual Enhancement**: Use the sidebar to enhance prompts directly
+- **Context Menu**: Right-click selected text and choose "Enhance with AI"
+- **Copy Results**: Click the copy button to copy enhanced prompts to clipboard
 
-## 📖 Usage
+## 🎯 Usage Examples
 
-### Manual Enhancement
-1. Open the extension sidebar
-2. Enter your basic prompt in the text area
-3. Click "Enhance Prompt"
-4. Copy the enhanced result
+### Basic Prompt Enhancement
+**Original**: `Write a blog post about AI`
 
-### Context Menu Enhancement
-1. Select text on any webpage
-2. Right-click and choose "Enhance with AI"
-3. The enhanced prompt will be processed automatically
+**Enhanced**: 
+```
+# ROLE
+You are an expert technology blogger and AI researcher with deep knowledge of artificial intelligence trends, applications, and implications.
+
+# GOAL
+Write a comprehensive and engaging blog post about AI that educates readers about current developments, practical applications, and future possibilities.
+
+# CONTEXT
+Create content suitable for a general audience interested in technology, including both technical and non-technical readers.
+
+# REQUIREMENTS
+- Use clear, accessible language while maintaining technical accuracy
+- Include real-world examples and current AI applications
+- Structure the post with engaging headlines and logical flow
+- Provide actionable insights for readers
+- Maintain an informative yet engaging tone
+
+# FORMAT
+Use a structured blog post format with:
+- Compelling headline and introduction
+- Well-organized sections with subheadings
+- Bullet points for key concepts
+- Conclusion with key takeaways
+```
+
+### Role-Specific Enhancement
+Set a role like "Software Engineer" and enhance:
+
+**Original**: `Explain databases`
+
+**Enhanced**: 
+```
+# ROLE
+You are a senior software engineer with extensive experience in database design, optimization, and management across various database systems.
+
+# GOAL
+Explain databases in a comprehensive manner that helps developers understand both fundamental concepts and practical implementation considerations.
+
+# CONTEXT
+Provide information suitable for software developers who need to understand database concepts for application development.
+
+# REQUIREMENTS
+- Cover both relational and NoSQL databases
+- Include practical examples and use cases
+- Explain performance considerations
+- Discuss best practices for database design
+- Use technical terminology appropriately
+
+# FORMAT
+Structure the explanation with:
+- Clear definitions and core concepts
+- Comparison of different database types
+- Code examples where relevant
+- Performance optimization tips
+```
+
+## 🌐 Website & Documentation
+
+Visit our comprehensive website for detailed guides and documentation:
+- **Main Website**: [Website included in extension](./website/index.html)
+- **API Setup Guide**: Complete setup instructions for all providers
+- **Best Practices**: Tips for optimal prompt enhancement
+- **Examples**: Real-world usage examples and templates
+
+## ☕ Support Development
+
+This extension is **completely free** and open-source! If you find it helpful, consider supporting its development:
+
+- ☕ **[Buy me a coffee](https://buymeacoffee.com/srinivaskiv)** - Support development
+- ⭐ **Star on GitHub** - Help others discover this project
+- 🐛 **Report issues** - Help improve the extension
+- 💡 **Suggest features** - Share your ideas
+- 🔄 **Contribute code** - Join the development
+
+## 🔒 Privacy & Security
+
+- **Local Storage**: API keys are stored locally in your browser
+- **No Data Collection**: We don't collect or store your prompts
+- **Direct API Calls**: Communications go directly to your chosen AI provider
+- **Open Source**: Full transparency with open source code
+- **No Tracking**: No analytics or user tracking
 
 ## 🛠️ Development
 
@@ -123,9 +200,13 @@ Prompt_extension/
 ├── sidebar.html          # Sidebar UI
 ├── sidebar.css           # Sidebar styles
 ├── content.js            # Content script
-├── welcome.html          # Welcome page
+├── popup.js              # Popup functionality
 ├── icons/                # Extension icons
-└── dist/                # Built extension
+└── website/              # Documentation website
+    ├── index.html        # Main landing page
+    ├── docs/             # Documentation pages
+    ├── css/              # Stylesheets
+    └── js/               # JavaScript files
 ```
 
 ## 🐛 Troubleshooting
@@ -148,11 +229,6 @@ Prompt_extension/
 - **Try**: Switch to a different AI provider
 - **Debug**: Check background script logs
 
-#### "Stats not updating"
-- **Solution**: Stats refresh automatically after successful enhancements
-- **Check**: Browser storage permissions
-- **Reset**: Clear extension data and reconfigure
-
 ### Debug Tools
 
 #### Manual Testing
@@ -170,61 +246,75 @@ Prompt_extension/
 2. Go to Console tab
 3. Look for extension messages prefixed with `[AI Prompt Enhancer Debug]`
 
-### Advanced Debugging
-
-#### Background Script Logs
-```javascript
-// In browser console
-browser.runtime.getBackgroundPage().then(bg => {
-    console.log(bg.console);
-});
-```
-
-#### Storage Inspection
-```javascript
-// Check stored data
-browser.storage.local.get().then(console.log);
-```
-
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+We welcome contributions! Here's how you can help:
+
+1. **Report Issues**: Found a bug? Let us know!
+2. **Suggest Features**: Have an idea? Share it with us!
+3. **Submit Pull Requests**: Code improvements are always welcome
+4. **Improve Documentation**: Help make our docs better
+5. **Test & Feedback**: Try the extension and share your experience
+
+### Development Guidelines
+- Follow the existing code style
+- Test your changes thoroughly
+- Update documentation as needed
+- Keep commits focused and descriptive
 
 ## 📄 License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🔄 Changelog
 
 ### Version 1.0.0
-- ✅ **Multi-provider support** (OpenRouter, OpenAI, Anthropic, Groq, Perplexity)
-- ✅ **Dynamic model selection** based on provider
-- ✅ **Real-time usage statistics**
-- ✅ **Fixed manual enhancement** button functionality
-- ✅ **Improved prompt templates** with structured formatting
-- ✅ **Enhanced error handling** and debugging
-- ✅ **Cross-browser compatibility**
-- ✅ **Professional UI/UX** improvements
+- ✨ **Initial release** with multi-provider support
+- 🎯 **Role-based prompt enhancement**
+- ⚙️ **Customizable enhancement settings**
+- 📊 **Usage statistics tracking**
+- 🛠️ **Context menu integration**
+- ☕ **Community support integration**
+- 🌐 **Comprehensive documentation website**
+- 🔒 **Privacy-focused design**
 
-## 💡 Tips
+## 💡 Tips & Best Practices
 
-### Best Practices
+### Getting Started
 - **Start simple**: Begin with basic prompts and let the AI enhance them
 - **Use roles**: Specify expertise areas for better context
 - **Experiment**: Try different providers and models for various tasks
 - **Save settings**: Configure once and reuse your preferences
 
-### Performance
+### Provider Recommendations
 - **OpenRouter**: Best for model variety and cost-effectiveness
 - **OpenAI**: Excellent for general tasks and coding
 - **Anthropic**: Superior for analysis and reasoning
 - **Groq**: Fastest inference for quick tasks
 - **Perplexity**: Best for research and current information
 
+### Cost Optimization
+- **Start with free tiers**: Most providers offer free credits
+- **Use smaller models**: For simple tasks, smaller models are sufficient
+- **Batch requests**: Process multiple prompts efficiently
+- **Monitor usage**: Keep track of your API usage and costs
+
+## 🙏 Acknowledgments
+
+- Thanks to all AI providers for their excellent APIs
+- Inspired by the prompt engineering community
+- Built with love for better AI interactions
+- Special thanks to all contributors and supporters
+
+## 📞 Support
+
+- **GitHub Issues**: Report bugs and request features
+- **Community**: Join our community discussions
+- **Documentation**: Visit our comprehensive website
+- **Email**: Contact us for support
+
 ---
 
-**Made with ❤️ for better AI interactions**
+**Transform your prompts, transform your AI interactions!** 🚀
+
+*Made with ❤️ by the community, for the community*

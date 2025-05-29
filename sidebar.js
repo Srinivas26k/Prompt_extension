@@ -22,11 +22,11 @@ class PromptEnhancer {
         };
         this.providerModels = {
             openrouter: [
+                { id: 'microsoft/phi-4-reasoning-plus:free', name: 'Microsoft Phi-4 Reasoning Plus (Free)' },
+                { id: 'sarvamai/sarvam-m:free', name: 'SarvaMAI Sarvam-M (Free)' },
+                { id: 'qwen/qwen3-30b-a3b:free', name: 'Qwen3 30B A3B (Free)' },
                 { id: 'anthropic/claude-3-haiku', name: 'Claude 3 Haiku' },
-                { id: 'anthropic/claude-3-sonnet', name: 'Claude 3 Sonnet' },
-                { id: 'openai/gpt-4o-mini', name: 'GPT-4o Mini' },
-                { id: 'openai/gpt-4o', name: 'GPT-4o' },
-                { id: 'google/gemini-flash-1.5', name: 'Gemini Flash 1.5' }
+                { id: 'openai/gpt-4o-mini', name: 'GPT-4o Mini' }
             ],
             openai: [
                 { id: 'gpt-4o-mini', name: 'GPT-4o Mini' },
@@ -49,6 +49,7 @@ class PromptEnhancer {
                 { id: 'llama-3.1-8b-instruct', name: 'Llama 3.1 8B Instruct' }
             ]
         };
+        this.websiteUrl = 'https://ai-prompt-enhancer.github.io'; // Will be updated with actual website URL
         this.init();
     }
 
@@ -221,6 +222,17 @@ class PromptEnhancer {
                 element.addEventListener('change', () => this.autoSaveSettings());
             }
         });
+
+        // Support buttons
+        const visitWebsiteBtn = document.getElementById('visitWebsite');
+        const learnMoreBtn = document.getElementById('learnMore');
+        
+        if (visitWebsiteBtn) {
+            visitWebsiteBtn.addEventListener('click', () => this.openWebsite());
+        }
+        if (learnMoreBtn) {
+            learnMoreBtn.addEventListener('click', () => this.openWebsite());
+        }
     }
 
     async sendMessage(message) {
@@ -504,6 +516,18 @@ class PromptEnhancer {
         if (providerSelect && this.currentProvider) {
             providerSelect.value = this.currentProvider;
             this.onProviderChange();
+        }
+    }
+
+    // Support Methods
+    openWebsite() {
+        try {
+            browserAPI.tabs.create({
+                url: this.websiteUrl
+            });
+        } catch (error) {
+            console.error('Error opening website:', error);
+            this.showStatus('Error opening website', 'error');
         }
     }
 }

@@ -4,16 +4,16 @@
   "description": "Firefox extension that transforms basic prompts into perfect role-based prompts using OpenRouter AI",
   "main": "background.js",
   "scripts": {
-    "clean": "rm -rf dist && mkdir -p dist/icons",
-    "copy-files": "cp -r *.js *.html *.css *.json icons dist/ 2>/dev/null || true",
-    "generate-icons": "./generate-icons.sh",
-    "build": "bun run clean && bun run generate-icons && bun run copy-files",
-    "zip": "cd dist && zip -r ../ai-prompt-enhancer-v1.0.0.zip .",
-    "dev": "bunx web-ext run --source-dir=dist --browser-console",
-    "lint": "bunx web-ext lint --source-dir=dist",
-    "start": "bun run build && bun run dev",
-    "package": "bun run build && bun run zip",
-    "test": "echo 'No tests specified' && exit 0"
+    "build": "npm run copy-files && npm run generate-icons",
+    "copy-files": "mkdir -p dist && cp -r *.js *.html *.css *.json icons dist/",
+    "generate-icons": "npm run create-icon-16 && npm run create-icon-32 && npm run create-icon-48 && npm run create-icon-96",
+    "create-icon-16": "mkdir -p dist/icons",
+    "create-icon-32": "echo 'Icons need to be created manually or with design tools'",
+    "create-icon-48": "echo 'Create 48x48 icon'",
+    "create-icon-96": "echo 'Create 96x96 icon'",
+    "zip": "cd dist && zip -r ../ai-prompt-enhancer.zip .",
+    "dev": "web-ext run --source-dir=dist",
+    "lint": "web-ext lint --source-dir=dist"
   },
   "keywords": [
     "firefox",
@@ -24,15 +24,12 @@
     "claude",
     "chatgpt",
     "perplexity",
-    "grok",
-    "prompt-engineering"
+    "grok"
   ],
-  "authors": [
-    "AI Prompt Enhancer Team"
-  ],
+  "author": "Srinivas | Ideavaults Community",
   "license": "MIT",
   "devDependencies": {
-    "web-ext": "^8.7.1"
+    "web-ext": "^7.9.0"
   },
   "repository": {
     "type": "git",
@@ -41,11 +38,5 @@
   "bugs": {
     "url": "https://github.com/your-username/ai-prompt-enhancer/issues"
   },
-  "homepage": "https://github.com/your-username/ai-prompt-enhancer#readme",
-  "engines": {
-    "node": ">=18.0.0"
-  },
-  "browserslist": [
-    "last 2 Firefox versions"
-  ]
+  "homepage": "https://github.com/your-username/ai-prompt-enhancer#readme"
 }

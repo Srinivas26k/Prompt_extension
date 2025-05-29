@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Troubleshooting - AI Prompt Enhancer</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/docs.css">
+    <link rel="icon" type="image/x-icon" href="../../icons/icon-48.png">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <img src="../../icons/icon-48.png" alt="AI Prompt Enhancer" class="nav-logo">
+                <a href="../index.html" class="nav-title">AI Prompt Enhancer</a>
+            </div>
+            <div class="nav-menu">
+                <a href="../index.html" class="nav-link">Home</a>
+                <a href="setup.html" class="nav-link">Setup</a>
+                <a href="api-setup.html" class="nav-link">API Setup</a>
+                <a href="examples.html" class="nav-link">Examples</a>
+                <a href="troubleshooting.html" class="nav-link active">Troubleshooting</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="docs-main">
+        <div class="docs-container">
+            <aside class="docs-sidebar">
+                <h3>Documentation</h3>
+                <nav class="docs-nav">
+                    <a href="index.html" class="docs-nav-link">Overview</a>
+                    <a href="setup.html" class="docs-nav-link">Getting Started</a>
+                    <a href="api-setup.html" class="docs-nav-link">API Setup Guide</a>
+                    <a href="examples.html" class="docs-nav-link">Usage Examples</a>
+                    <a href="troubleshooting.html" class="docs-nav-link active">Troubleshooting</a>
+                    <a href="privacy.html" class="docs-nav-link">Privacy Policy</a>
+                    <a href="terms.html" class="docs-nav-link">Terms of Use</a>
+                </nav>
+            </aside>
+
+            <div class="docs-content">
+                <article>
+                    <h1>Troubleshooting Guide</h1>
+                    
+                    <section id="common-issues">
+                        <h2>Common Issues</h2>
+                        
+                        <div class="issue-card">
+                            <h3>❌ Extension Not Loading</h3>
+                            <div class="problem">
+                                <strong>Problem:</strong> Extension icon doesn't appear or shows as grayed out
+                            </div>
+                            <div class="solution">
+                                <strong>Solutions:</strong>
+                                <ol>
+                                    <li>Ensure Developer Mode is enabled in Chrome extensions</li>
+                                    <li>Check if the extension folder contains all required files</li>
+                                    <li>Reload the extension by clicking the refresh icon</li>
+                                    <li>Try removing and re-adding the extension</li>
+                                </ol>
+                            </div>
+                        </div>
+
+                        <div class="issue-card">
+                            <h3>🔧 Popup Not Opening</h3>
+                            <div class="problem">
+                                <strong>Problem:</strong> Clicking the extension icon doesn't open the popup
+                            </div>
+                            <div class="solution">
+                                <strong>Solutions:</strong>
+                                <ol>
+                                    <li>Check browser console for JavaScript errors</li>
+                                    <li>Ensure popup.html and popup.js files are present</li>
+                                    <li>Verify manifest.json has correct popup configuration</li>
+                                    <li>Try refreshing the current webpage</li>
+                                </ol>
+                            </div>
+                        </div>
+
+                        <div class="issue-card">
+                            <h3>📝 Prompt Enhancement Not Working</h3>
+                            <div class="problem">
+                                <strong>Problem:</strong> "Enhance Prompt" button doesn't respond or produces errors
+                            </div>
+                            <div class="solution">
+                                <strong>Solutions:</strong>
+                                <ol>
+                                    <li>Check if the input text area has content</li>
+                                    <li>Verify internet connection for online enhancement features</li>
+                                    <li>Clear browser cache and cookies</li>
+                                    <li>Check browser console for error messages</li>
+                                </ol>
+                            </div>
+                        </div>
+
+                        <div class="issue-card">
+                            <h3>🌐 Sidebar Not Appearing</h3>
+                            <div class="problem">
+                                <strong>Problem:</strong> Right-click context menu option missing or sidebar doesn't load
+                            </div>
+                            <div class="solution">
+                                <strong>Solutions:</strong>
+                                <ol>
+                                    <li>Refresh the webpage after installing the extension</li>
+                                    <li>Check if content scripts are properly injected</li>
+                                    <li>Ensure the website allows iframe content</li>
+                                    <li>Try on a different website to test functionality</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="browser-specific">
+                        <h2>Browser-Specific Issues</h2>
+                        
+                        <div class="browser-section">
+                            <h3>Chrome Issues</h3>
+                            <ul>
+                                <li><strong>Manifest V3 Warnings:</strong> These are normal and don't affect functionality</li>
+                                <li><strong>Service Worker Errors:</strong> Check background.js for console logs</li>
+                                <li><strong>CORS Issues:</strong> Some websites may block cross-origin requests</li>
+                            </ul>
+                        </div>
+
+                        <div class="browser-section">
+                            <h3>Edge Issues</h3>
+                            <ul>
+                                <li><strong>Extension Store:</strong> Load unpacked from chrome://extensions/ (same as Chrome)</li>
+                                <li><strong>Security Settings:</strong> Ensure developer features are enabled</li>
+                                <li><strong>Compatibility:</strong> All Chrome extension features should work</li>
+                            </ul>
+                        </div>
+                    </section>
+
+                    <section id="debugging">
+                        <h2>Debugging Steps</h2>
+                        
+                        <div class="debug-steps">
+                            <h3>1. Check Extension Status</h3>
+                            <ol>
+                                <li>Go to <code>chrome://extensions/</code></li>
+                                <li>Find AI Prompt Enhancer in the list</li>
+                                <li>Ensure it's enabled (toggle switch is on)</li>
+                                <li>Click "Details" to view more information</li>
+                            </ol>
+                        </div>
+
+                        <div class="debug-steps">
+                            <h3>2. View Console Logs</h3>
+                            <ol>
+                                <li>Right-click on the extension icon</li>
+                                <li>Select "Inspect popup" (for popup issues)</li>
+                                <li>Check the Console tab for error messages</li>
+                                <li>For background script errors, click "Inspect views: background page"</li>
+                            </ol>
+                        </div>
+
+                        <div class="debug-steps">
+                            <h3>3. Clear Extension Data</h3>
+                            <ol>
+                                <li>Go to extension details page</li>
+                                <li>Click "Remove" to uninstall</li>
+                                <li>Restart your browser</li>
+                                <li>Reinstall the extension using "Load unpacked"</li>
+                            </ol>
+                        </div>
+                    </section>
+
+                    <section id="file-structure">
+                        <h2>Required File Structure</h2>
+                        <p>Ensure your extension folder contains all these files:</p>
+                        <div class="file-tree">
+                            <pre>
+ai-prompt-enhancer/
+├── manifest.json
+├── background.js
+├── popup.html
+├── popup.js
+├── sidebar.html
+├── sidebar.js
+├── sidebar.css
+├── content.js
+├── content.css
+└── icons/
+    ├── icon-16.png
+    ├── icon-32.png
+    ├── icon-48.png
+    └── icon-96.png
+                            </pre>
+                        </div>
+                    </section>
+
+                    <section id="contact">
+                        <h2>Still Need Help?</h2>
+                        <div class="contact-info">
+                            <p>If you're still experiencing issues after trying these solutions:</p>
+                            <ul>
+                                <li>Check our <a href="https://github.com/ideavaults/ai-prompt-enhancer" target="_blank">GitHub repository</a> for known issues</li>
+                                <li>Create a new issue with detailed error information</li>
+                                <li>Include your browser version and operating system</li>
+                                <li>Attach any console error messages</li>
+                            </ul>
+                        </div>
+                    </section>
+                </article>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2025 AI Prompt Enhancer. Created by Srinivas | Ideavaults Community</p>
+        </div>
+    </footer>
+</body>
+</html>

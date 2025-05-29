@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Prompt Enhancer - Transform Your Prompts with AI</title>
+    <meta name="description" content="Free AI-powered prompt enhancement tool. Transform simple prompts into detailed, effective instructions for better AI responses. Community-supported and open source.">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="icon" type="image/x-icon" href="../icons/icon48.png">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="AI Prompt Enhancer - Transform Your Prompts with AI">
+    <meta property="og:description" content="Free AI-powered prompt enhancement tool. Transform simple prompts into detailed, effective instructions for better AI responses.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://ai-prompt-enhancer.github.io">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="AI Prompt Enhancer">
+    <meta name="twitter:description" content="Free AI-powered prompt enhancement tool for better AI responses.">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <img src="../icons/icon48.png" alt="AI Prompt Enhancer" class="nav-logo">
+                <span class="nav-title">AI Prompt Enhancer</span>
+            </div>
+            <div class="nav-menu">
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#installation" class="nav-link">Installation</a>
+                <a href="docs/" class="nav-link">Documentation</a>
+                <a href="#support" class="nav-link">Support</a>
+                <a href="https://github.com/yourusername/ai-prompt-enhancer" class="nav-link" target="_blank">GitHub</a>
+            </div>
+            <div class="nav-mobile-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1 class="hero-title">Transform Your AI Prompts</h1>
+                <p class="hero-subtitle">
+                    Turn simple prompts into detailed, effective instructions that get better AI responses. 
+                    <strong>Completely free</strong> with community support.
+                </p>
+                <div class="hero-buttons">
+                    <a href="#installation" class="btn btn-primary">Get Started Free</a>
+                    <a href="#demo" class="btn btn-secondary">See Demo</a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <div class="stat-number">100%</div>
+                        <div class="stat-label">Free to Use</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">5+</div>
+                        <div class="stat-label">AI Providers</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">Open</div>
+                        <div class="stat-label">Source</div>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="demo-container">
+                    <div class="demo-before">
+                        <h4>Before Enhancement</h4>
+                        <div class="demo-text">How to learn programming?</div>
+                    </div>
+                    <div class="demo-arrow">→</div>
+                    <div class="demo-after">
+                        <h4>After Enhancement</h4>
+                        <div class="demo-text">
+                            <strong>ROLE:</strong> You are an expert programming instructor...<br>
+                            <strong>GOAL:</strong> How to learn programming?<br>
+                            <strong>CONTEXT:</strong> Provide comprehensive guidance...<br>
+                            <strong>REQUIREMENTS:</strong> Clear structure, actionable steps...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <h2 class="section-title">Powerful Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🚀</div>
+                    <h3>Instant Enhancement</h3>
+                    <p>Transform simple prompts into detailed, structured instructions in seconds.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔧</div>
+                    <h3>Multiple AI Providers</h3>
+                    <p>Works with OpenAI, Anthropic, OpenRouter, Groq, and Perplexity APIs.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚙️</div>
+                    <h3>Customizable Settings</h3>
+                    <p>Adjust tone, length, format, and style to match your specific needs.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Context-Aware</h3>
+                    <p>Automatically detects and enhances prompts from any webpage you visit.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Usage Statistics</h3>
+                    <p>Track your enhancement history and see your improvement over time.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💰</div>
+                    <h3>Completely Free</h3>
+                    <p>No subscriptions, no limits. Community-supported with optional donations.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Section -->
+    <section id="demo" class="demo">
+        <div class="container">
+            <h2 class="section-title">See It In Action</h2>
+            <div class="demo-interactive">
+                <div class="demo-input">
+                    <label for="demoPrompt">Enter a simple prompt:</label>
+                    <textarea id="demoPrompt" placeholder="How to improve my writing skills?"></textarea>
+                    <button id="demoEnhance" class="btn btn-primary">Enhance Prompt</button>
+                </div>
+                <div class="demo-output">
+                    <label>Enhanced prompt:</label>
+                    <div id="demoResult" class="demo-result-container">
+                        <div class="demo-placeholder">Enhanced prompt will appear here...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Installation Section -->
+    <section id="installation" class="installation">
+        <div class="container">
+            <h2 class="section-title">Get Started in Minutes</h2>
+            <div class="installation-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Install Extension</h3>
+                        <p>Download from Chrome Web Store or Firefox Add-ons</p>
+                        <div class="download-buttons">
+                            <a href="#" class="btn btn-chrome">
+                                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23fff' d='M12 0C5.37 0 0 5.37 0 12s5.37 12 12 12 12-5.37 12-12S18.63 0 12 0zm5.56 9.5h-3.94c-.54-1.18-1.73-2-3.12-2s-2.58.82-3.12 2H3.44C4.68 6.66 8.11 4.5 12 4.5s7.32 2.16 8.56 5zm-11.12 5c.54 1.18 1.73 2 3.12 2s2.58-.82 3.12-2h3.94C15.32 17.34 11.89 19.5 8 19.5s-7.32-2.16-8.56-5h6.05z'/%3E%3C/svg%3E" alt="Chrome">
+                                Chrome Store
+                            </a>
+                            <a href="#" class="btn btn-firefox">
+                                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23fff' d='M12 0C5.37 0 0 5.37 0 12s5.37 12 12 12 12-5.37 12-12S18.63 0 12 0z'/%3E%3C/svg%3E" alt="Firefox">
+                                Firefox Add-ons
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Get API Key</h3>
+                        <p>Choose your preferred AI provider and get a free API key</p>
+                        <div class="provider-links">
+                            <a href="https://openrouter.ai/" target="_blank" class="provider-link">OpenRouter (Recommended)</a>
+                            <a href="https://platform.openai.com/" target="_blank" class="provider-link">OpenAI</a>
+                            <a href="https://console.anthropic.com/" target="_blank" class="provider-link">Anthropic</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Start Enhancing</h3>
+                        <p>Configure your settings and start creating better prompts instantly</p>
+                        <a href="docs/setup.html" class="btn btn-outline">Setup Guide</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Support Section -->
+    <section id="support" class="support">
+        <div class="container">
+            <h2 class="section-title">Community Support</h2>
+            <div class="support-content">
+                <div class="support-text">
+                    <h3>Free Forever, Community Powered</h3>
+                    <p>
+                        AI Prompt Enhancer is completely free to use with no restrictions. 
+                        We believe everyone should have access to better AI interactions.
+                    </p>
+                    <p>
+                        If you find this tool helpful and want to support its development, 
+                        consider making a small donation. Every contribution helps us maintain 
+                        and improve the extension.
+                    </p>
+                    <div class="support-buttons">
+                        <a href="https://buymeacoffee.com/srinivaskiv" target="_blank" class="btn btn-coffee">
+                            ☕ Buy me a Coffee
+                        </a>
+                        <a href="https://github.com/yourusername/ai-prompt-enhancer" target="_blank" class="btn btn-github">
+                            ⭐ Star on GitHub
+                        </a>
+                    </div>
+                </div>
+                <div class="support-features">
+                    <div class="support-feature">
+                        <h4>✨ What Your Support Enables</h4>
+                        <ul>
+                            <li>Continued development and new features</li>
+                            <li>Better documentation and tutorials</li>
+                            <li>Community support and bug fixes</li>
+                            <li>Hosting and infrastructure costs</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>AI Prompt Enhancer</h4>
+                    <p>Transform your AI prompts for better results. Free, open source, and community-supported.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="docs/">Documentation</a></li>
+                        <li><a href="docs/api-setup.html">API Setup Guide</a></li>
+                        <li><a href="docs/troubleshooting.html">Troubleshooting</a></li>
+                        <li><a href="docs/examples.html">Examples</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Community</h4>
+                    <ul>
+                        <li><a href="https://github.com/yourusername/ai-prompt-enhancer" target="_blank">GitHub</a></li>
+                        <li><a href="https://github.com/yourusername/ai-prompt-enhancer/issues" target="_blank">Report Issues</a></li>
+                        <li><a href="https://buymeacoffee.com/srinivaskiv" target="_blank">Support Development</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Privacy</h4>
+                    <ul>
+                        <li><a href="docs/privacy.html">Privacy Policy</a></li>
+                        <li><a href="docs/terms.html">Terms of Use</a></li>
+                        <li>No data collection</li>
+                        <li>Local storage only</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 AI Prompt Enhancer. Created by Srinivas | Ideavaults Community. Open source under MIT License.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

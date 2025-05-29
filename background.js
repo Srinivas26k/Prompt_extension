@@ -249,7 +249,7 @@ function getProviderName(provider) {
 
 function getDefaultModelForProvider(provider) {
   const defaults = {
-    openrouter: 'anthropic/claude-3-haiku',
+    openrouter: 'microsoft/phi-4-reasoning-plus:free',
     openai: 'gpt-4o-mini',
     anthropic: 'claude-3-haiku-20240307',
     groq: 'llama-3.1-8b-instant',
