@@ -21,8 +21,8 @@ st.set_page_config(
     layout="wide"
 )
 
-# Admin password - CHANGE THIS IN PRODUCTION!
-ADMIN_PASSWORD = "srinivas@13579#"
+# Admin password - stored in secrets for security
+ADMIN_PASSWORD = st.secrets.get("ADMIN_PASSWORD")
 
 # Database helper function
 def get_db_connection():
