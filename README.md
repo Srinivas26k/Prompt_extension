@@ -1,114 +1,137 @@
 # AI Prompt Enhancer - Production Ready
 
-A complete Firefox extension and web application that transforms basic prompts into perfect role-based prompts using AI, with secure redemption code system.
+A complete Firefox extension and Next.js web application with waitlist system that transforms basic prompts into perfect role-based prompts using AI, featuring secure redemption codes and donation notifications.
 
 ## 🏗️ Project Structure
 
 ```
 /ai-prompt-enhancer/
-├── firefox-extension/          # 🦊 Firefox Extension Files
-│   ├── manifest.json          # Extension configuration
-│   ├── background.js          # Background service worker
+├── nextjs-app/                 # 🚀 Next.js Application (Main)
+│   ├── pages/api/             # API Routes
+│   │   ├── register.js        # User registration with waitlist
+│   │   ├── enhance.js         # Prompt enhancement using OpenRouter
+│   │   ├── send-email.js      # Email sending system
+│   │   ├── health.js          # API health check
+│   │   ├── verify.js          # Code verification
+│   │   └── waitlist.js        # Waitlist management
+│   ├── components/            # React Components
+│   │   ├── EmailVerification.js # Email verification UI
+│   │   ├── Hero.js            # Landing page hero
+│   │   ├── Layout.js          # App layout with donation notifications
+│   │   └── ui/                # UI components (button, card, input)
+│   ├── lib/                   # Utilities
+│   │   ├── supabase.js        # Supabase client & waitlist functions
+│   │   └── utils.js           # Utility functions
+│   ├── public/                # Static assets
+│   ├── styles/                # CSS files
+│   ├── package.json           # Dependencies (uses bun)
+│   └── vercel.json            # Vercel deployment config
+│
+├── firefox-extension/          # 🦊 Firefox Extension
+│   ├── manifest.json          # Extension configuration with notifications
+│   ├── background.js          # Background service with donation notifications
 │   ├── popup.html/js          # Extension popup interface
 │   ├── sidebar.html/js/css    # Main extension interface
 │   ├── content.js/css         # Content injection scripts
 │   └── icons/                 # Extension icons (16-96px)
 │
-├── vercel-backend/            # ⚡ Serverless API Backend
-│   ├── api/                   # Vercel serverless functions
-│   │   ├── health.js          # API health check
-│   │   ├── register.js        # User registration
-│   │   ├── verify.js          # Code verification
-│   │   ├── check-credits.js   # Credit checking
-│   │   └── enhance.js         # Prompt enhancement
-│   ├── lib/supabase.js        # Supabase client & utilities
-│   ├── package.json           # Node.js dependencies
-│   └── vercel.json            # Vercel configuration
-│
-├── supabase-db/               # 🗄️ Database Schema & Setup
-│   ├── supabase-schema.sql    # Complete database schema
-│   └── supabase-setup.md      # Database setup instructions
-│
-├── github-pages-frontend/     # 🌐 Static Frontend
-│   ├── welcome.html           # Landing page (index.html)
-│   ├── verify.html            # Code verification page
-│   ├── main.js                # Frontend JavaScript
-│   ├── css/styles.css         # Styling
-│   └── assets/                # Static assets
-│
-├── scripts/                   # 🔧 Build & Deployment Scripts
-│   ├── deploy-complete.sh     # Full deployment automation
-│   ├── deploy-vercel.sh       # Vercel deployment
-│   ├── deploy-production.sh   # Multi-platform deployment
-│   └── test-deployment.sh     # Testing scripts
-│
-├── docs/                      # 📚 Documentation
-│   ├── COMPLETE_DEPLOYMENT_GUIDE.md
-│   ├── PRODUCTION_READY.md
-│   └── [Other documentation files]
-│
-└── archive/                   # 📦 Old/Backup Files
-    ├── streamlit_backend/     # Legacy Streamlit implementation
-    ├── github-pages/          # Old frontend structure
-    └── [Backup files]
+├── complete-waitlist-setup.sql # 🗄️ Complete Database Schema
+├── O1_PROMPT_TEMPLATE.md      # 🧠 Expert O1 Prompt Template
+└── README.md                  # 📖 Main Documentation
 ```
 
 ## 🚀 Quick Start
 
-### 1. Deploy Backend (Vercel + Supabase)
+### 1. Deploy Next.js App (Vercel + Supabase)
 ```bash
-cd vercel-backend
-npm install
-vercel --prod
+cd nextjs-app
+bun install
+bunx vercel --prod
 ```
 
 ### 2. Setup Database (Supabase)
 ```bash
-cd supabase-db
-# Follow setup instructions in supabase-setup.md
+# Import complete-waitlist-setup.sql into your Supabase project
+# Configure environment variables in Vercel dashboard
 ```
 
-### 3. Deploy Frontend (GitHub Pages)
-```bash
-cd github-pages-frontend
-# Push to gh-pages branch
-```
-
-### 4. Package Extension (Firefox)
+### 3. Update Firefox Extension for Production
 ```bash
 cd firefox-extension
-# Update manifest.json with production URLs
+# Update API_BASE_URL in background.js to production Vercel URL
 # Package for Firefox Add-ons store
 ```
 
 ## 🔗 Live Deployment
 
-- **Frontend**: https://srinivas26k.github.io/Prompt_extension/
-- **API**: https://ai-prompt-enhancer-api.vercel.app/
-- **Admin**: https://ai-prompt-enhancer.streamlit.app/ (Legacy)
+- **Next.js App**: TBD (Vercel deployment URL)
+- **Database**: Supabase PostgreSQL with waitlist system
+- **Extension**: Firefox Add-ons Store (pending)
 
-## 🛠️ Development
+## ✨ Key Features
 
-Each folder contains its own README.md with specific development instructions.
+### Waitlist System
+- ✅ First 25 users get immediate access
+- ✅ Then 1 out of every 10 registrations approved
+- ✅ Automatic waitlist position tracking
+- ✅ Email notifications for status updates
 
-## 📋 Architecture
+### Donation Integration
+- ✅ Non-intrusive notifications every 5 minutes
+- ✅ Buy Me a Coffee integration
+- ✅ Both website and extension support
 
-- **Frontend**: Static HTML/CSS/JS hosted on GitHub Pages
-- **Backend**: Serverless Vercel functions with Supabase PostgreSQL
-- **Extension**: Firefox extension with secure API communication
-- **Database**: Supabase with Row Level Security (RLS)
-
-## 🔐 Security Features
-
+### Security & Performance
 - ✅ Secure redemption code system
 - ✅ Rate limiting on API endpoints
 - ✅ HTTPS everywhere
 - ✅ Row Level Security on database
-- ✅ No hardcoded credentials
+- ✅ OpenRouter AI integration
+
+## 🛠️ Development
+
+### Prerequisites
+- Bun (JavaScript runtime and package manager)
+- Supabase account with PostgreSQL database
+- OpenRouter API key
+- Vercel account for deployment
+
+### Environment Variables
+```bash
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+OPENROUTER_API_KEY=your_openrouter_key
+```
+
+### Local Development
+```bash
+cd nextjs-app
+bun install
+bun dev
+```
+
+## 📋 Architecture
+
+- **Frontend**: Next.js with React components and Tailwind CSS
+- **Backend**: Next.js API routes (serverless functions on Vercel)
+- **Database**: Supabase PostgreSQL with waitlist logic and triggers
+- **Extension**: Firefox extension with secure API communication
+- **AI**: OpenRouter integration for prompt enhancement
+- **Email**: Development logging (ready for production email service)
+
+## 🔐 Security Features
+
+- ✅ Secure redemption code system with database validation
+- ✅ Waitlist position tracking and approval logic
+- ✅ Rate limiting on API endpoints
+- ✅ HTTPS everywhere with Vercel SSL
+- ✅ Row Level Security on Supabase database
+- ✅ No hardcoded credentials in extension or frontend
 
 ## 📄 License
 
 MIT License - See LICENSE file for details.
 
 ---
-**Status**: Production Ready ✅
+**Status**: Production Ready ✅ | **Deployment**: Ready for Vercel | **Extension**: Ready for Firefox Store
